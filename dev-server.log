@@ -1,0 +1,284 @@
+
+> ecommerce-app@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.9 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.153:3000
+- Environments: .env.local
+✓ Ready in 20.1s
+Creating turbopack project { dir: 'D:\\ecomarce-frontend', testMode: true }
+○ Compiling proxy ...
+
+○ Compiling / ...
+HomePageServer: sections [
+  {
+    type: 'category_section',
+    category: {
+      id: 35,
+      name: 'Neckband',
+      slug: 'neckband',
+      description: null,
+      image: 'https://admin.onehaatbd.com/storage/categories/4uOFNLQwb3Z3HabPCVqVSiAjcepnhfq7KIIwrpUR.jpg'
+    },
+    products: [ [Object], [Object], [Object] ]
+  },
+  {
+    type: 'category_section',
+    category: {
+      id: 31,
+      name: 'TWS Earbuds',
+      slug: 'tws-earbuds',
+      description: null,
+      image: 'https://admin.onehaatbd.com/storage/categories/ovsJMUCMce8LvB6844GK48u5kefGMOAxz0z5dXYm.jpg'
+    },
+    products: [ [Object], [Object], [Object], [Object], [Object] ]
+  },
+  {
+    type: 'cta_section',
+    id: 3,
+    cta_style: 'style3',
+    title: 'Flash Sale Weekend',
+    subtitle: 'Up to 70% off',
+    description: "Huge discounts on thousands of items. This weekend only — don't miss out on incredible savings!",
+    image: null,
+    banner_image: null,
+    button_text: 'Grab the Deals',
+    button_link: '/sale/flash',
+    background_color: '#fef3c7',
+    text_color: '#92400e',
+    button_color: '#f59e0b',
+    button_text_color: '#ffffff',
+    overlay_color: null,
+    badge_text: '🔥 Hot Sale',
+    badge_color: '#ef4444',
+    secondary_button_text: null,
+    secondary_button_link: null,
+    secondary_button_color: null,
+    secondary_button_text_color: null,
+    feature_icon_1: null,
+    feature_text_1: null,
+    feature_icon_2: null,
+    feature_text_2: null,
+    feature_icon_3: null,
+    feature_text_3: null,
+    button_position: 'center',
+    button_margin_top: null,
+    button_margin_bottom: null,
+    button_margin_left: null,
+    button_margin_right: null,
+    secondary_button_position: 'center',
+    secondary_button_margin_top: null,
+    secondary_button_margin_bottom: null,
+    secondary_button_margin_left: null,
+    secondary_button_margin_right: null,
+    content_alignment: 'center',
+    content_margin_top: null,
+    content_margin_bottom: null,
+    content_margin_left: null,
+    content_margin_right: null
+  },
+  {
+    type: 'category_section',
+    category: {
+      id: 32,
+      name: 'Over-Ear Headphones',
+      slug: 'over-ear-headphones',
+      description: null,
+      image: 'https://admin.onehaatbd.com/storage/categories/vrQngH82FDSGfUwEiTDL2hdI4ZCQDFRxDNQFxqjN.jpg'
+    },
+    products: [ [Object] ]
+  },
+  {
+    type: 'category_section',
+    category: {
+      id: 33,
+      name: 'Neckband Wireless Earphones',
+      slug: 'neckband-wireless-earphones',
+      description: null,
+      image: 'https://admin.onehaatbd.com/storage/categories/Dm7NqxlaPooLTb8CESj1kVUK0dEsPvRe8p9UuKrv.jpg'
+    },
+    products: [ [Object], [Object], [Object] ]
+  },
+  {
+    type: 'cta_section',
+    id: 4,
+    cta_style: 'style4',
+    title: 'New Arrivals Are Here',
+    subtitle: 'Fresh styles, fresh vibes',
+    description: 'Be the first to explore our newest collection. From casual wear to formal attire, find your perfect look.',
+    image: null,
+    banner_image: null,
+    button_text: 'Shop New In',
+    button_link: '/new-arrivals',
+    background_color: '#ecfdf5',
+    text_color: '#065f46',
+    button_color: '#059669',
+    button_text_color: '#ffffff',
+    overlay_color: null,
+    badge_text: 'Just Landed',
+    badge_color: '#3b82f6',
+    secondary_button_text: 'Learn More',
+    secondary_button_link: '/about',
+    secondary_button_color: '#ffffff',
+    secondary_button_text_color: '#059669',
+    feature_icon_1: null,
+    feature_text_1: null,
+    feature_icon_2: null,
+    feature_text_2: null,
+    feature_icon_3: null,
+    feature_text_3: null,
+    button_position: 'center',
+    button_margin_top: null,
+    button_margin_bottom: null,
+    button_margin_left: null,
+    button_margin_right: null,
+    secondary_button_position: 'center',
+    secondary_button_margin_top: null,
+    secondary_button_margin_bottom: null,
+    secondary_button_margin_left: null,
+    secondary_button_margin_right: null,
+    content_alignment: 'center',
+    content_margin_top: null,
+    content_margin_bottom: null,
+    content_margin_left: null,
+    content_margin_right: null
+  }
+]
+HomePageServer: sections [
+  {
+    type: 'category_section',
+    category: {
+      id: 35,
+      name: 'Neckband',
+      slug: 'neckband',
+      description: null,
+      image: 'https://admin.onehaatbd.com/storage/categories/4uOFNLQwb3Z3HabPCVqVSiAjcepnhfq7KIIwrpUR.jpg'
+    },
+    products: [ [Object], [Object], [Object] ]
+  },
+  {
+    type: 'category_section',
+    category: {
+      id: 31,
+      name: 'TWS Earbuds',
+      slug: 'tws-earbuds',
+      description: null,
+      image: 'https://admin.onehaatbd.com/storage/categories/ovsJMUCMce8LvB6844GK48u5kefGMOAxz0z5dXYm.jpg'
+    },
+    products: [ [Object], [Object], [Object], [Object], [Object] ]
+  },
+  {
+    type: 'cta_section',
+    id: 3,
+    cta_style: 'style3',
+    title: 'Flash Sale Weekend',
+    subtitle: 'Up to 70% off',
+    description: "Huge discounts on thousands of items. This weekend only — don't miss out on incredible savings!",
+    image: null,
+    banner_image: null,
+    button_text: 'Grab the Deals',
+    button_link: '/sale/flash',
+    background_color: '#fef3c7',
+    text_color: '#92400e',
+    button_color: '#f59e0b',
+    button_text_color: '#ffffff',
+    overlay_color: null,
+    badge_text: '🔥 Hot Sale',
+    badge_color: '#ef4444',
+    secondary_button_text: null,
+    secondary_button_link: null,
+    secondary_button_color: null,
+    secondary_button_text_color: null,
+    feature_icon_1: null,
+    feature_text_1: null,
+    feature_icon_2: null,
+    feature_text_2: null,
+    feature_icon_3: null,
+    feature_text_3: null,
+    button_position: 'center',
+    button_margin_top: null,
+    button_margin_bottom: null,
+    button_margin_left: null,
+    button_margin_right: null,
+    secondary_button_position: 'center',
+    secondary_button_margin_top: null,
+    secondary_button_margin_bottom: null,
+    secondary_button_margin_left: null,
+    secondary_button_margin_right: null,
+    content_alignment: 'center',
+    content_margin_top: null,
+    content_margin_bottom: null,
+    content_margin_left: null,
+    content_margin_right: null
+  },
+  {
+    type: 'category_section',
+    category: {
+      id: 32,
+      name: 'Over-Ear Headphones',
+      slug: 'over-ear-headphones',
+      description: null,
+      image: 'https://admin.onehaatbd.com/storage/categories/vrQngH82FDSGfUwEiTDL2hdI4ZCQDFRxDNQFxqjN.jpg'
+    },
+    products: [ [Object] ]
+  },
+  {
+    type: 'category_section',
+    category: {
+      id: 33,
+      name: 'Neckband Wireless Earphones',
+      slug: 'neckband-wireless-earphones',
+      description: null,
+      image: 'https://admin.onehaatbd.com/storage/categories/Dm7NqxlaPooLTb8CESj1kVUK0dEsPvRe8p9UuKrv.jpg'
+    },
+    products: [ [Object], [Object], [Object] ]
+  },
+  {
+    type: 'cta_section',
+    id: 4,
+    cta_style: 'style4',
+    title: 'New Arrivals Are Here',
+    subtitle: 'Fresh styles, fresh vibes',
+    description: 'Be the first to explore our newest collection. From casual wear to formal attire, find your perfect look.',
+    image: null,
+    banner_image: null,
+    button_text: 'Shop New In',
+    button_link: '/new-arrivals',
+    background_color: '#ecfdf5',
+    text_color: '#065f46',
+    button_color: '#059669',
+    button_text_color: '#ffffff',
+    overlay_color: null,
+    badge_text: 'Just Landed',
+    badge_color: '#3b82f6',
+    secondary_button_text: 'Learn More',
+    secondary_button_link: '/about',
+    secondary_button_color: '#ffffff',
+    secondary_button_text_color: '#059669',
+    feature_icon_1: null,
+    feature_text_1: null,
+    feature_icon_2: null,
+    feature_text_2: null,
+    feature_icon_3: null,
+    feature_text_3: null,
+    button_position: 'center',
+    button_margin_top: null,
+    button_margin_bottom: null,
+    button_margin_left: null,
+    button_margin_right: null,
+    secondary_button_position: 'center',
+    secondary_button_margin_top: null,
+    secondary_button_margin_bottom: null,
+    secondary_button_margin_left: null,
+    secondary_button_margin_right: null,
+    content_alignment: 'center',
+    content_margin_top: null,
+    content_margin_bottom: null,
+    content_margin_left: null,
+    content_margin_right: null
+  }
+]
+ GET / 200 in 479ms (next.js: 13ms, proxy.ts: 26ms, application-code: 440ms)
+ GET /category/neckband 200 in 5.0s (next.js: 3.1s, proxy.ts: 9ms, application-code: 1862ms)
+[?25h

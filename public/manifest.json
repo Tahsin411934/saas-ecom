@@ -1,0 +1,19 @@
+{
+  "name": "OneHaat.bd - Premium Online Shopping in Bangladesh",
+  "short_name": "OneHaat.bd",
+  "description": "OneHaat.bd is Bangladesh's trusted online shopping destination. Discover top-quality products at unbeatable prices with fast, reliable delivery across Bangladesh.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#22C55E",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["shopping", "ecommerce"],
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

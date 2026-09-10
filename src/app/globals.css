@@ -1,0 +1,101 @@
+@import "tailwindcss";  
+  
+:root {  
+  --background: #ffffff;  
+  --foreground: #111827;  
+}  
+  
+@theme inline {  
+  --color-background: var(--background);  
+  --color-foreground: var(--foreground);  
+  --font-sans: var(--font-inter), sans-serif;  
+  --font-mono: var(--font-geist-mono);  
+  --color-primary: #22C55E;  
+  --color-primary-dark: #16A34A;  
+  --color-border: #E5E7EB;  
+  --color-muted: #6B7280;  
+  --color-accent: #F8FAFC;  
+  --color-popover: #ffffff;  
+  --color-secondary: #f3f4f6;  
+  --color-topbar: #0F1115;  
+}  
+  
+body {  
+  background: var(--background);  
+  color: var(--foreground);  
+  font-family: var(--font-inter), sans-serif;  
+}
+
+/* Use a pointer only for elements that perform an action or navigation. */
+a[href],
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+select:not(:disabled),
+summary,
+label[for],
+input[type="checkbox"]:not(:disabled),
+input[type="radio"]:not(:disabled),
+input[type="file"]:not(:disabled),
+[data-radix-collection-item]:not([data-disabled]) {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"],
+input:disabled,
+select:disabled {
+  cursor: not-allowed;
+}
+
+/* ===== Product Grid Carousel Styles ===== */
+/* On small screens, show 2 full cards + 40% of 3rd card with horizontal scroll */
+.products-carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 0.75rem; /* 3px gap = 0.75rem */
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.products-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.products-carousel .product-card-item {
+  flex: 0 0 calc((100% - 1.5rem) / 2.4);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* For md and above, switch to grid layout */
+@media (min-width: 768px) {
+  .products-carousel {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    overflow-x: visible;
+    gap: 1rem; /* md:gap-4 = 1rem */
+    scroll-behavior: auto;
+  }
+  
+  .products-carousel .product-card-item {
+    flex: auto;
+    scroll-snap-align: none;
+    scroll-snap-stop: unset;
+  }
+}
+
+/* For lg and above, 4 columns */
+@media (min-width: 1024px) {
+  .products-carousel {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* For xl and above, 5 columns */
+@media (min-width: 1280px) {
+  .products-carousel {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}

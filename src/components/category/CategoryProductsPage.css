@@ -1,0 +1,68 @@
+/* ===== React-Select Custom Styles for Category Filter ===== */
+
+.category-select__control {
+  min-height: 36px !important;
+  border-radius: 8px !important;
+  border-color: #e5e7eb !important;
+  box-shadow: none !important;
+  font-size: 14px !important;
+  cursor: pointer !important;
+  background-color: white !important;
+  width: 220px !important;
+}
+
+.category-select__control:hover {
+  border-color: var(--color-primary) !important;
+}
+
+.category-select__control--is-focused {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.2) !important;
+}
+
+.category-select__placeholder {
+  color: #9ca3af !important;
+  font-size: 14px !important;
+}
+
+.category-select__menu {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  z-index: 50 !important;
+}
+
+.category-select__option {
+  cursor: pointer !important;
+  font-size: 14px !important;
+  padding: 8px 12px !important;
+}
+
+.category-select__option--is-selected {
+  background-color: var(--color-primary) !important;
+  color: white !important;
+}
+
+.category-select__option--is-focused:not(.category-select__option--is-selected) {
+  background-color: #f3f4f6 !important;
+  color: #374151 !important;
+}
+
+.category-select__indicator-separator {
+  display: none !important;
+}
+
+.category-select__dropdown-indicator {
+  color: #9ca3af !important;
+  padding: 4px !important;
+}
+
+.category-select__clear-indicator {
+  color: #9ca3af !important;
+  padding: 4px !important;
+  cursor: pointer !important;
+}
+
+.category-select__menu-list {
+  max-height: 300px !important;
+  overflow-y: auto !important;
+}
