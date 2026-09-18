@@ -24,7 +24,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [orderNumber, setOrderNumber] = useState<string | null>(null);
+  const [orderNumbers, setOrderNumbers] = useState<string[]>([]);
   // Guest-only field: a logged-out buyer must give their name so the order
   // has someone to deliver to (logged-in users come from their profile).
   const [customerName, setCustomerName] = useState("");
@@ -37,6 +37,15 @@ export default function CheckoutPage() {
   // per order (one parcel = one charge) — the same rule the backend applies.
   const shippingCost = useAppSelector(selectShippingTotal);
   const grandTotal = total + shippingCost;
+
+  // When the cart holds products from more than one store, the backend splits
+  // the checkout into one order per store (each with its own delivery charge).
+  // Surface a warning so the buyer isn't surprised by multiple shipments.
+  const storeKeys = items
+    .filter((item) => item.store_id !== undefined)
+    .map((item) => (item.store_id === null ? "platform" : String(item.store_id)))
+    .filter((v, i, arr) => arr.indexOf(v) === i);
+  const cartSpansMultipleStores = storeKeys.length > 1;
 
   // Pull the LIVE per-product delivery charges from the backend so the
   // shipping row never shows stale values (e.g. after an admin change).
@@ -118,16 +127,21 @@ export default function CheckoutPage() {
         });
       }
 
-      if (result.status === "success" && result.order) {
-        const placedOrderNumber = result.order.order_number;
+      if (result.status === "success" && (result.order || (result.orders && result.orders.length > 0))) {
+        // Split-by-store carts return `orders[]` (one order per store);
+        // single-store carts return a legacy `order` object.
+        const placedOrderNumbers = result.orders && result.orders.length > 0
+          ? result.orders.map((o) => o.order_number)
+          : [result.order!.order_number];
+
         setSuccess(true);
-        setOrderNumber(placedOrderNumber);
+        setOrderNumbers(placedOrderNumbers);
         dispatch(clearCart());
 
-        // GTM: Track purchase
+        // GTM: Track purchase (one event, grand total across split orders)
         trackPurchase({
-          orderId: placedOrderNumber,
-          transactionId: placedOrderNumber,
+          orderId: placedOrderNumbers.join(", "),
+          transactionId: placedOrderNumbers.join(", "),
           items: items.map((item) => ({
             productId: item.id,
             productName: item.name,
@@ -135,11 +149,11 @@ export default function CheckoutPage() {
             quantity: item.quantity,
             variant: item.variant_name,
           })),
-          totalValue: grandTotal,
+          totalValue: result.total_amount ?? grandTotal,
           shipping: shippingCost,
         });
-        
-        // Redirect to order confirmation after 3 seconds
+
+        // Redirect to home after 3 seconds
         setTimeout(() => {
           router.push("/");
         }, 3000);
@@ -174,9 +188,22 @@ export default function CheckoutPage() {
         <div className="text-center px-4 max-w-md">
           <CheckCircle className="h-20 w-20 text-[var(--color-primary)] mx-auto mb-6" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Order Placed Successfully!</h1>
-          <p className="text-gray-500 mb-2">Your order number is:</p>
-          <p className="text-lg font-bold text-[var(--color-primary)] mb-4">{orderNumber}</p>
-          <p className="text-sm text-gray-500 mb-8">Redirecting to home page...</p>
+          {orderNumbers.length > 1 && (
+            <div className="w-full p-4 border border-amber-200 bg-amber-50 rounded-xl text-amber-800 text-sm mb-4 text-left">
+              Your cart contained products from multiple stores, so your order was
+              split into separate shipments (one per store). Each order below is
+              handled and delivered independently.
+            </div>
+          )}
+          <p className="text-gray-500 mb-2">
+            {orderNumbers.length > 1 ? "Your order numbers are:" : "Your order number is:"}
+          </p>
+          <div className="space-y-2">
+            {orderNumbers.map((number) => (
+              <p key={number} className="text-lg font-bold text-[var(--color-primary)]">{number}</p>
+            ))}
+          </div>
+          <p className="text-sm text-gray-500 mt-4 mb-8">Redirecting to home page...</p>
           <Link href="/" className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-primary)] text-white rounded-xl font-semibold hover:bg-[var(--color-primary)] transition-colors">
             Continue Shopping
           </Link>
@@ -199,6 +226,17 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Order Summary */}
           <div className="lg:col-span-2">
+            {cartSpansMultipleStores && (
+              <div className="mb-4 p-4 border border-amber-200 bg-amber-50 rounded-xl text-amber-800 text-sm flex items-start gap-2">
+                <svg className="h-5 w-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 2l3 7H4l2 8l2 10l2 12l2 14M4 8l-2 10 2 10 2 12 2 14M4 8H3 4M7 5h2 3M9 5v7" />
+                </svg>
+                <span>
+                  Your cart contains products from <strong>{storeKeys.length} stores</strong>. Your order will be
+                  split into separate shipments — one per store, each with its own delivery charge.
+                </span>
+              </div>
+            )}
             <div className="bg-white rounded-xl border border-gray-100 p-6">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Order Summary</h2>
               

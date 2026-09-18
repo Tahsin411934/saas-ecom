@@ -9,17 +9,29 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const canonical = `/subnavbar/${slug}`;
 
   try {
     const data = await subnavbarService.getProducts(slug, { per_page: 1 });
     return {
       title: `${data.subnavbar.name} | OneHaatbd`,
       description: `Browse ${data.subnavbar.name} products at OneHaatbd. Best prices, fast delivery.`,
+      alternates: {
+        canonical,
+      },
+      openGraph: {
+        title: `${data.subnavbar.name} | OneHaatbd`,
+        description: `Browse ${data.subnavbar.name} products at OneHaatbd. Best prices, fast delivery.`,
+        url: canonical,
+      },
     };
   } catch {
     return {
       title: "Category | OneHaatbd",
       description: "Browse products by category",
+      alternates: {
+        canonical,
+      },
     };
   }
 }

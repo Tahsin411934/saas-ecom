@@ -39,6 +39,10 @@ export function useSyncDeliveryCharges() {
           .map((item) => ({
             variant_id: item.variant_id,
             delivery_charge: item.delivery_charge as number,
+            // Also capture the owning store so checkout can show a
+            // "multiple stores → split shipments" warning before placing.
+            store_id: item.store_id as number | null | undefined,
+            store_name: item.store_name as string | null | undefined,
           }));
         if (charges.length > 0) {
           dispatch(updateDeliveryCharges(charges));

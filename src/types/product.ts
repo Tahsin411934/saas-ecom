@@ -79,6 +79,13 @@ export interface ProductDetailData {
   published_at: string | null;
   /** Product-level delivery charge (৳) — the highest one in the cart becomes the shipping charge. */
   delivery_charge?: number;
+  /** Owning store (null = platform product) — drives multi-store split-shipment warnings. */
+  store_id?: number | null;
+  store?: {
+    id: number;
+    name: string;
+    slug: string;
+  } | null;
   price_range: {
     min: number;
     max: number;

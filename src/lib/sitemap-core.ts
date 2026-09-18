@@ -115,16 +115,13 @@ async function getSubnavbarSlugs(): Promise<string[]> {
   }
 }
 
-// Active campaign slugs, using their end date as a freshness signal.
-async function getActiveCampaigns(): Promise<{ slug: string; endsAt?: Date }[]> {
+// Active campaign slugs. The campaign end date is not a last-modified date.
+async function getActiveCampaigns(): Promise<string[]> {
   try {
     const campaigns = await campaignService.getActive();
     return campaigns
       .filter((c) => !!c.slug)
-      .map((c) => ({
-        slug: c.slug,
-        ...(c.ends_at ? { endsAt: new Date(c.ends_at) } : {}),
-      }));
+      .map((c) => c.slug);
   } catch {
     return [];
   }
@@ -162,11 +159,7 @@ export async function staticPages(): Promise<SitemapEntry[]> {
   );
 
   const campaignPages = campaigns.map((campaign) =>
-    page(`/campaigns/${campaign.slug}`, {
-      lastModified: campaign.endsAt,
-      changeFrequency: "weekly",
-      priority: 0.6,
-    })
+    page(`/campaigns/${campaign}`, { changeFrequency: "weekly", priority: 0.6 })
   );
 
   return [...staticEntries, ...categoryPages, ...subnavbarPages, ...campaignPages];

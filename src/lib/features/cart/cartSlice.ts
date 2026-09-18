@@ -14,6 +14,9 @@ export interface CartItem {
   stock: number;
   /** Product-level delivery charge (৳). Missing values fall back to DEFAULT_DELIVERY_CHARGE. */
   delivery_charge?: number;
+  /** Owning store of this cart item (null = platform product). Lets checkout warn + split. */
+  store_id?: number | null;
+  store_name?: string | null;
 }
 
 /**
@@ -139,12 +142,14 @@ const cartSlice = createSlice({
     // change is reflected even for items already sitting in localStorage.
     updateDeliveryCharges(
       state,
-      action: PayloadAction<Array<{ variant_id: number; delivery_charge: number }>>
+      action: PayloadAction<Array<{ variant_id: number; delivery_charge: number; store_id?: number | null; store_name?: string | null }>>
     ) {
       for (const upd of action.payload) {
         const item = state.items.find((i) => i.variant_id === upd.variant_id);
         if (item) {
           item.delivery_charge = upd.delivery_charge;
+          if (upd.store_id !== undefined) item.store_id = upd.store_id;
+          if (upd.store_name !== undefined) item.store_name = upd.store_name;
         }
       }
       saveCart(state.items);

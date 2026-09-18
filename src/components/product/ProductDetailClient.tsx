@@ -216,6 +216,8 @@ export default function ProductDetailClient({
         variant_option_id: selectedOption?.id,
         stock: stockCount,
         delivery_charge: product.delivery_charge,
+        store_id: product.store_id,
+        store_name: product.store?.name,
       })
     );
 

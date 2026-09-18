@@ -70,6 +70,13 @@ export function normalizeApiData<T>(raw: ApiEnvelope<unknown>, fallback: T): Nor
   };
 }
 
+export class ApiError extends Error {
+  constructor(message: string, public readonly status: number) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 export async function api<T>(
   endpoint: string,
   options: ApiOptions = {}
@@ -96,7 +103,7 @@ export async function api<T>(
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
-    throw new Error(errorBody.message || `API Error: ${response.status}`);
+    throw new ApiError(errorBody.message || `API Error: ${response.status}`, response.status);
   }
 
   // Rewrite any legacy backend hosts (pos.aftsoftandlimited.com) that may be

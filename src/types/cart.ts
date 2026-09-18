@@ -28,6 +28,9 @@ export interface CartItemRow {
   unit_price: number;
   /** Product-level delivery charge (৳) resolved by the backend. */
   delivery_charge?: number;
+  /** Owning store (null = platform product) — used for split-shipment warning. */
+  store_id?: number | null;
+  store_name?: string | null;
 }
 
 export interface CartResponse {

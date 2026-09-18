@@ -14,7 +14,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           "/api/",
           "/admin/",
-          "/_next/",
           "/sitemap-chunk/", // internal rewrite target of /sitemap/products-N.xml
           "/login",
           "/register",

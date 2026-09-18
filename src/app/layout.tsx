@@ -10,6 +10,7 @@ import ScrollToTop from "@/components/ui/ScrollToTop";
 import ToastProvider from "@/components/ui/ToastProvider";
 import CartDrawer from "@/components/cart/CartDrawer";
 import FloatingCartButton from "@/components/cart/FloatingCartButton";
+import FloatingPartnerButton from "@/components/partner/FloatingPartnerButton";
 import { normalizeAssetUrl } from "@/lib/asset-url";
 
 const inter = Inter({
@@ -85,13 +86,6 @@ export const metadata: Metadata = {
     title: `${SITE_NAME} - Premium Online Shopping in Bangladesh`,
     description: SITE_DESCRIPTION,
     images: [`${SITE_URL}/og-image.jpg`],
-  },
-  alternates: {
-    canonical: SITE_URL,
-    languages: {
-      "en-US": SITE_URL,
-      "bn-BD": SITE_URL,
-    },
   },
   icons: {
     icon: [{ url: "/favicon.ico", sizes: "any" }],
@@ -208,7 +202,6 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-        <link rel="canonical" href={SITE_URL} />
         <meta name="geo.region" content="BD" />
         <meta name="geo.placename" content="Bangladesh" />
         <meta name="theme-color" content={primaryColor} />
@@ -248,6 +241,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           <MobileBottomNav />
           <CartDrawer />
           <FloatingCartButton />
+          <FloatingPartnerButton />
           <ToastProvider />
           <ScrollToTop />
         </StoreProvider>

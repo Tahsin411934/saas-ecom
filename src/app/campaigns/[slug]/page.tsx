@@ -4,9 +4,55 @@ import { rewriteLegacyAssetHosts } from "@/lib/asset-url";
 import { REVALIDATE } from "@/config/revalidate";
 import type { Campaign, CampaignProduct } from "@/services/campaign.service";
 import QuickAddCardButton from "@/components/cart/QuickAddCardButton";
+import type { Metadata } from "next";
 
 // Freshness is centrally controlled via fetch-level revalidate
 // (REVALIDATE.CAMPAIGN in src/config/revalidate.ts — see the fetch below).
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const canonical = `/campaigns/${slug}`;
+
+  try {
+    const response = await fetch(buildApiUrl(`/campaigns/${slug}`), {
+      next: { revalidate: REVALIDATE.CAMPAIGN, tags: [`campaign-${slug}`] },
+    });
+
+    if (!response.ok) throw new Error("Campaign not available");
+
+    const { data: campaign } = rewriteLegacyAssetHosts(
+      (await response.json()) as { data: Campaign }
+    ) as { data: Campaign };
+    const description =
+      campaign.description || `Shop ${campaign.name} campaign products at OneHaatbd.`;
+
+    return {
+      title: `${campaign.name} | OneHaatbd`,
+      description,
+      alternates: {
+        canonical,
+      },
+      openGraph: {
+        title: `${campaign.name} | OneHaatbd`,
+        description,
+        url: canonical,
+        images: campaign.banner_image ? [{ url: campaign.banner_image, alt: campaign.name }] : [],
+      },
+    };
+  } catch {
+    return {
+      title: "Campaign | OneHaatbd",
+      description: "Browse campaign products at OneHaatbd.",
+      alternates: {
+        canonical,
+      },
+    };
+  }
+}
 
 function displayPrice(p: CampaignProduct): number {
   const final = typeof p.price === "number" && isFinite(p.price) && p.price > 0 ? p.price : null;

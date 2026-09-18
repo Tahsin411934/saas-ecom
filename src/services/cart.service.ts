@@ -1,12 +1,37 @@
 import type { CartResponse } from "@/types/cart";
 
+/** A single order returned by the split-by-store checkout. */
+export interface CheckoutOrder {
+  id: number;
+  order_number: string;
+  store_id: number | null;
+  subtotal: number;
+  shipping_total: number;
+  grand_total: number;
+  items: Array<{
+    product_name: string;
+    variant_name: string;
+    quantity: number;
+    unit_price: number;
+    line_total: number;
+  }>;
+}
+
 /** Shape returned by the /checkout and /checkout/guest endpoints. */
 export interface CheckoutResponse {
   status: string;
   message: string;
+  /** Legacy single-order field — backend still returns it for one-store carts. */
   order?: {
+    id?: number;
     order_number: string;
+    store_id?: number | null;
   };
+  /** Multi-store carts are split into one order per store (Amazon-style). */
+  orders?: CheckoutOrder[];
+  order_count?: number;
+  total_amount?: number;
+  split_by_store?: boolean;
 }
 
 /**
