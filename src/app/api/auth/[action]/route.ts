@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { storefrontFetch } from "@/lib/storefront-api";
+import { centralFetch } from "@/lib/central-api";
 
 const publicActions = new Set(["register", "login", "forgot-password", "reset-password"]);
 const protectedActions = new Set(["logout", "logout-all", "change-password", "refresh"]);
@@ -16,7 +16,7 @@ export async function POST(request: Request, context: { params: Promise<{ action
     return NextResponse.json({ message: "Not authenticated." }, { status: 401 });
   }
   try {
-    const response = await storefrontFetch(`auth/${action}`, {
+    const response = await centralFetch(`auth/${action}`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...(protectedActions.has(action) && token ? { Authorization: `Bearer ${token}` } : {}) },
       body: await request.text(),

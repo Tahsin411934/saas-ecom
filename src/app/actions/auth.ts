@@ -7,7 +7,7 @@ import type {
   PasswordFormState,
   ForgotPasswordFormState,
 } from "@/lib/features/auth/auth.types";
-import { storefrontFetch } from "@/lib/storefront-api";
+import { centralFetch } from "@/lib/central-api";
 
 const TOKEN_COOKIE_NAME = "token";
 
@@ -18,7 +18,7 @@ interface ApiError {
 }
 
 async function apiRequest<T>(path: string, init: RequestInit): Promise<T> {
-  const response = await storefrontFetch(`auth/${path.replace(/^\/?(?:api\/)?/, "")}`, {
+  const response = await centralFetch(`auth/${path.replace(/^\/?(?:api\/)?/, "")}`, {
     ...init,
     headers: {
       Accept: "application/json",

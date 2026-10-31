@@ -21,18 +21,19 @@ const context = {
 };
 vm.createContext(context);
 vm.runInContext(script("src/lib/storefront-api.ts"), context);
+vm.runInContext(script("src/lib/central-api.ts"), context);
 vm.runInContext(script("src/app/actions/auth.ts"), context);
 const form = { get: key => ({ email: "customer@example.com", password: "password123", first_name: "Test", last_name: "Customer", password_confirmation: "password123" }[key] ?? null) };
 const login = await context.loginAction({}, form);
 assert.equal(login.success, true);
 assert.equal(login.user.id, 7);
 assert.equal(writes[0][2].httpOnly, true);
-assert.equal(calls[0].url, "https://backend.example/api/v1/storefront/auth/login");
-assert.equal(calls[0].init.headers.get("X-Store-Host"), "shop.example");
+assert.equal(calls[0].url, "https://backend.example/api/v1/central/auth/login");
+assert.equal(calls[0].init.headers.has("X-Store-Host"), false);
 await assert.rejects(() => context.registerUser({}, form), /NEXT_REDIRECT/);
-assert.equal(calls.at(-1).url, "https://backend.example/api/v1/storefront/auth/register");
+assert.equal(calls.at(-1).url, "https://backend.example/api/v1/central/auth/register");
 assert.equal((await context.getAuthenticatedUserAction()).user.id, 7);
-assert.equal(calls.at(-1).url, "https://backend.example/api/v1/storefront/auth/me");
+assert.equal(calls.at(-1).url, "https://backend.example/api/v1/central/auth/me");
 await context.changePasswordAction({}, form);
 assert.equal(calls.at(-1).init.headers.get("Authorization"), "Bearer customer-token");
 for (const base of ["https://backend.example", "https://backend.example/api", "https://backend.example/api/v1", "https://backend.example/api/v1/storefront"]) {
@@ -43,7 +44,13 @@ for (const base of ["https://backend.example", "https://backend.example/api", "h
 context.process.env.STOREFRONT_HOST = "registered.example";
 await context.storefrontFetch("auth/me");
 assert.equal(calls.at(-1).init.headers.get("X-Store-Host"), "registered.example");
-console.log("PASS: customer auth, cookies, tenant headers, password token and API URL normalization");
+for (const base of ["https://backend.example", "https://backend.example/api", "https://backend.example/api/v1", "https://backend.example/api/v1/central"]) {
+  context.process.env.NEXT_PUBLIC_API_URL = base;
+  await context.centralFetch("auth/login", { headers: { "X-Store-Host": "untrusted.example" } });
+  assert.equal(calls.at(-1).url, "https://backend.example/api/v1/central/auth/login");
+  assert.equal(calls.at(-1).init.headers.has("X-Store-Host"), false);
+}
+console.log("PASS: separate central auth without store header; existing storefront transport retained; cookies and password tokens");
 
 const beforeFailure = writes.length;
 context.fetch = async () => ({ ok: false, status: 422, json: async () => ({ message: "Invalid email", errors: { email: ["Invalid email"] } }) });

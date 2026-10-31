@@ -5,7 +5,7 @@ import TopHeaderBar from "./TopHeaderBar";
 import MainHeader from "./MainHeader";
 import NavigationBarServer from "./NavigationBarServer";
 import { cookies } from "next/headers";
-import { storefrontFetch } from "@/lib/storefront-api";
+import { centralFetch } from "@/lib/central-api";
 
 export interface Settings {
   site_name?: string;
@@ -30,7 +30,7 @@ async function fetchServerUser(): Promise<any> {
     const token = cookieStore.get("token")?.value;
     if (!token) return null;
 
-    const res = await storefrontFetch("auth/me", {
+    const res = await centralFetch("auth/me", {
       method: "GET",
       headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
       cache: "no-store",
