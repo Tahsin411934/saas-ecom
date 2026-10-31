@@ -30,6 +30,6 @@ export async function POST(request: Request, context: { params: Promise<{ action
     if (action === "logout" || action === "logout-all") cookieStore.delete("token");
     return NextResponse.json({ ...raw, ...payload, ...(payload.customer ? { user: payload.customer } : {}) });
   } catch {
-    return NextResponse.json({ message: "Unable to contact the store. Please try again." }, { status: 502 });
+    return NextResponse.json({ message: "Unable to contact the server. Please try again." }, { status: 502 });
   }
 }
