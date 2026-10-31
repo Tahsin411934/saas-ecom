@@ -7,7 +7,7 @@ import type {
   PasswordFormState,
   ForgotPasswordFormState,
 } from "@/lib/features/auth/auth.types";
-import { buildApiUrl } from "@/lib/api-url";
+import { storefrontFetch } from "@/lib/storefront-api";
 
 const TOKEN_COOKIE_NAME = "token";
 
@@ -18,7 +18,7 @@ interface ApiError {
 }
 
 async function apiRequest<T>(path: string, init: RequestInit): Promise<T> {
-  const response = await fetch(buildApiUrl(path), {
+  const response = await storefrontFetch(`auth/${path.replace(/^\/?(?:api\/)?/, "")}`, {
     ...init,
     headers: {
       Accept: "application/json",
@@ -54,7 +54,10 @@ async function apiRequest<T>(path: string, init: RequestInit): Promise<T> {
       ? envelope.data
       : raw;
 
-  return payload as T;
+  const customerPayload = payload as { customer?: unknown };
+  return (customerPayload?.customer
+    ? { ...raw, ...payload, user: customerPayload.customer }
+    : { ...raw, ...payload }) as T;
 }
 
 async function setTokenCookie(token: string): Promise<void> {
@@ -101,9 +104,8 @@ export async function registerUser(
     });
 
     const token = data.token ?? data.access_token ?? null;
-    if (token) {
-      await setTokenCookie(token);
-    }
+    if (!token) throw new Error("Authentication token was not returned by the server.");
+    await setTokenCookie(token);
 
     redirect("/dashboard");
     return {
@@ -270,8 +272,11 @@ export async function changePasswordAction(
   formData: FormData
 ): Promise<PasswordFormState> {
   try {
+    const token = (await cookies()).get(TOKEN_COOKIE_NAME)?.value;
+    if (!token) throw new Error('Not authenticated.');
     const data = await apiRequest<{ status: string; message: string }>('/api/change-password', {
       method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
       body: JSON.stringify({
         current_password: formData.get('current_password'),
         password: formData.get('password'),

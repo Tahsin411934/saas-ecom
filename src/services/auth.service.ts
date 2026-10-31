@@ -9,7 +9,7 @@ import type {
   ResetPasswordRequest,
   ChangePasswordRequest,
 } from "@/lib/features/auth/auth.types";
-import { buildApiUrl } from "@/lib/api-url";
+
 
 async function authFetch<T>(
   endpoint: string,
@@ -21,7 +21,7 @@ async function authFetch<T>(
     ...(options.headers as Record<string, string>),
   };
 
-  const response = await fetch(buildApiUrl(endpoint), {
+  const response = await fetch(`/api/auth/${endpoint.replace(/^\/?(?:api\/)?/, "")}`, {
     ...options,
     credentials: "include",
     headers,

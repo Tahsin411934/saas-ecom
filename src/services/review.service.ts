@@ -21,13 +21,13 @@ export const reviewService = {
     title: string;
     body: string;
   }): Promise<ReviewResponse> {
-    const res = await api<ApiEnvelope<Review>>(`/products/${productId}/reviews`, {
-      method: 'POST',
-      body: JSON.stringify({
-        product_id: productId,
-        ...reviewData,
-      }),
+    const response = await fetch(`/api/products/${productId}/reviews`, {
+      method: "POST", credentials: "include",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(reviewData),
     });
+    const res = await response.json();
+    if (!response.ok) throw new Error(res.message || "Unable to submit review.");
     // Only the success flag matters to the caller — map status → success.
     return normalizeApiData<Review[]>(res, []);
   },

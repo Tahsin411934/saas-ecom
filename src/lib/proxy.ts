@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { buildApiUrl } from "@/lib/api-url";
+import { storefrontFetch } from "@/lib/storefront-api";
 
 /**
  * Proxy a request to a protected backend endpoint.
@@ -36,7 +36,7 @@ export async function proxyApiRequest(
   const body =
     method === "GET" || method === "HEAD" ? undefined : await request!.text();
 
-  const response = await fetch(buildApiUrl(endpoint), {
+  const response = await storefrontFetch(endpoint.replace(/^\/api\/v1\//, ""), {
     method,
     headers: {
       Accept: "application/json",

@@ -5,7 +5,7 @@ import TopHeaderBar from "./TopHeaderBar";
 import MainHeader from "./MainHeader";
 import NavigationBarServer from "./NavigationBarServer";
 import { cookies } from "next/headers";
-import { buildApiUrl } from "@/lib/api-url";
+import { storefrontFetch } from "@/lib/storefront-api";
 
 export interface Settings {
   site_name?: string;
@@ -30,7 +30,7 @@ async function fetchServerUser(): Promise<any> {
     const token = cookieStore.get("token")?.value;
     if (!token) return null;
 
-    const res = await fetch(buildApiUrl("/api/v1/me"), {
+    const res = await storefrontFetch("auth/me", {
       method: "GET",
       headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
       cache: "no-store",
@@ -40,9 +40,9 @@ async function fetchServerUser(): Promise<any> {
     const data = await res.json();
     // The backend wraps every payload in a `{ status, message, data }` envelope
     // (see src/app/actions/auth.ts apiRequest) — the user therefore sits at
-    // `data.data.user`, NOT at the top level. Fall back to a top-level `user`
+    // `data.data.customer`, NOT at the top level. Fall back to a top-level `customer`
     // key in case the envelope is ever removed on the backend.
-    const envelope = data as { data?: unknown; user?: unknown } | null;
+    const envelope = data as { data?: unknown; customer?: unknown } | null;
     const payload =
       envelope &&
       typeof envelope === "object" &&
@@ -50,7 +50,7 @@ async function fetchServerUser(): Promise<any> {
       typeof envelope.data === "object"
         ? (envelope.data as { user?: unknown })
         : envelope;
-    return payload?.user ?? null;
+    return payload?.customer ?? null;
   } catch {
     return null;
   }
