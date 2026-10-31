@@ -48,7 +48,7 @@ async function fetchServerUser(): Promise<any> {
       typeof envelope === "object" &&
       envelope.data !== null &&
       typeof envelope.data === "object"
-        ? (envelope.data as { user?: unknown })
+        ? (envelope.data as { customer?: unknown })
         : envelope;
     return payload?.customer ?? null;
   } catch {
