@@ -19,7 +19,7 @@ export default function HomePage({ sections }: HomePageProps) {
   }
 
   return (
-    <div className="space-y-12 py-8">
+    <div className="space-y-6 py-4 md:space-y-7 md:py-5">
       {sections.map((section, index) => {
         if (section.type === "category_section") {
           return (

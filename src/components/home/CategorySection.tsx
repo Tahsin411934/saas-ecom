@@ -18,24 +18,24 @@ interface CategorySectionProps {
 export default function CategorySection({ category, products }: CategorySectionProps) {
   return (
     <section className="w-full">
-      <div className="mx-auto max-w-[1200px] px-4">
+      <div className="mx-auto max-w-[1400px] px-3 md:px-6">
         {/* Category Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2">
             {category.image && (
-              <div className="relative w-12 h-12 shrink-0 rounded-lg overflow-hidden">
+              <div className="relative h-7 w-7 shrink-0 overflow-hidden rounded-md">
                 <Image
                   src={category.image}
                   alt={category.name}
                   fill
-                  sizes="48px"
-                  className="object-cover"
+                  sizes="28px"
+                  className="object-contain"
                   unoptimized
                 />
               </div>
             )}
             <div>
-              <h2 className="text-xl font-bold text-gray-900 md:text-2xl">
+              <h2 className="text-base font-bold text-gray-900 md:text-lg">
                 {category.name}
               </h2>
               {category.description && (
@@ -64,11 +64,11 @@ export default function CategorySection({ category, products }: CategorySectionP
             }}
             className="relative"
           >
-            <CarouselContent className="-ml-3">
+            <CarouselContent className="-ml-2 items-stretch md:-ml-3">
               {products.map((product) => (
                 <CarouselItem
                   key={product.id}
-                  className="shrink-0 basis-[calc((100%_-_1.5rem)_/_2.4)] md:basis-1/3 lg:basis-[20%] pl-3"
+                  className="basis-[44%] pl-2 sm:basis-1/3 md:pl-3 lg:basis-1/5 xl:basis-1/6"
                 >
                   <ProductCard product={product} />
                 </CarouselItem>

@@ -3,7 +3,7 @@
 import { type MouseEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Heart, ShoppingCart } from "lucide-react";
+import { Heart, ShoppingCart, Star } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { toggleWishlistItem, selectIsInWishlist } from "@/lib/features/wishlist/wishlistSlice";
 import { requireAuth } from "@/lib/require-auth";
@@ -29,6 +29,8 @@ export interface ProductCardItem {
   has_discount?: boolean;
   product_type?: string;
   stock_status?: string;
+  rating?: number;
+  review_count?: number;
 }
 
 interface ProductCardProps {
@@ -186,95 +188,50 @@ export default function ProductCard({ product, viewMode = "grid" }: ProductCardP
 
   // Grid view (default)
   return (
-    <Link
-      href={`/product/${product.slug}`}
-      className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all"
-      onClick={handleProductClick}
-    >
-      {/* Image */}
-      <div className="aspect-square bg-gray-100 relative overflow-hidden">
-        {product.main_image ? (
-          <Image
-            src={product.main_image}
-            alt={product.name}
-            fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-            loading="lazy"
-            unoptimized
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-gray-400" aria-hidden="true">
-            <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-        )}
-
-        {/* Wishlist Button */}
-        <button
-          onClick={handleToggleWishlist}
-          className="absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm shadow-sm hover:bg-white transition-all"
+    <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-gray-100 bg-white p-2 transition-shadow duration-200 hover:shadow-md">
+      <div className="relative aspect-[1.15/1] overflow-hidden rounded-md bg-gray-50">
+        <Link href={`/product/${product.slug}`} onClick={handleProductClick} aria-label={`View ${product.name}`} className="absolute inset-0 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-emerald-600">
+          {product.main_image ? (
+            <Image src={product.main_image} alt={product.name} fill
+              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 225px"
+              className="object-contain p-1 transition-transform duration-300 group-hover:scale-105" loading="lazy" unoptimized />
+          ) : (
+            <div className="flex h-full items-center justify-center text-gray-300" aria-hidden="true"><ShoppingCart className="h-10 w-10" /></div>
+          )}
+        </Link>
+        <button type="button" onClick={handleToggleWishlist} aria-pressed={wishlisted}
           aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-        >
-          <Heart
-            className={`h-4 w-4 transition-colors ${wishlisted ? "fill-red-500 text-red-500" : "text-gray-600"}`}
-          />
+          className="absolute right-1 top-1 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 shadow-sm transition-colors hover:bg-rose-50 focus-visible:outline-2 focus-visible:outline-emerald-600">
+          <Heart className={`h-4 w-4 ${wishlisted ? "fill-red-500 text-red-500" : "text-gray-600"}`} />
         </button>
-
-        {/* Discount Badge */}
         {discountPercent > 0 && (
-          <span className="absolute top-2 left-2 z-10 rounded bg-red-500 px-1.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
-            -{discountPercent}%
-          </span>
+          <span className="pointer-events-none absolute left-1 top-1 z-10 rounded bg-rose-500 px-1.5 py-0.5 text-[10px] font-bold text-white">-{discountPercent}%</span>
         )}
       </div>
-
-      {/* Info */}
-      <div className="p-3">
-        <h3 className="text-sm font-medium text-gray-900 line-clamp-2 mb-1 group-hover:text-[var(--color-primary)] transition-colors">
-          {product.name}
-        </h3>
-        {product.short_description && (
-          <p className="text-xs text-gray-500 line-clamp-1 mb-2">
-            {product.short_description}
-          </p>
-        )}
-        <div className="flex items-center gap-2">
-          <span className="text-base font-bold text-[var(--color-primary)]">
-            ৳{displayPrice?.toLocaleString("en-BD")}
-          </span>
-          {regularPrice != null && (
-            <span className="text-xs text-gray-400 line-through">
-              ৳{regularPrice.toLocaleString("en-BD")}
-            </span>
+      <div className="flex flex-1 flex-col pt-2">
+        <Link href={`/product/${product.slug}`} onClick={handleProductClick} className="rounded-sm focus-visible:outline-2 focus-visible:outline-emerald-600">
+          <h3 className="mb-1 min-h-8 text-xs font-medium leading-4 text-gray-900 line-clamp-2 transition-colors hover:text-emerald-700">{product.name}</h3>
+        </Link>
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+          <span className={`text-sm font-bold ${hasDiscount ? "text-rose-500" : "text-gray-900"}`}>৳{displayPrice?.toLocaleString("en-BD")}</span>
+          {regularPrice != null && <span className="text-[10px] text-gray-400 line-through">৳{regularPrice.toLocaleString("en-BD")}</span>}
+        </div>
+        <div className="mb-2 mt-1 flex min-h-4 items-center gap-1 text-[10px] leading-4 text-gray-500">
+          {product.rating != null && Number.isFinite(product.rating) && (
+            <>
+              <Star className="h-3 w-3 fill-amber-400 text-amber-400" aria-hidden="true" />
+              <span aria-label={`Rated ${product.rating.toFixed(1)} out of 5`}>{product.rating.toFixed(1)}</span>
+              {product.review_count != null && <span>({product.review_count.toLocaleString("en-BD")})</span>}
+            </>
           )}
         </div>
-        {!inStock && (
-          <span className="mt-1 inline-block text-xs font-medium text-red-500">
-            Out of Stock
-          </span>
-        )}
-        <div
-          className="mt-4"
-          onClick={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-          }}
-        >
-          <QuickAddModal
-            product={{
-              id: product.id,
-              name: product.name,
-              slug: product.slug,
-              main_image: product.main_image,
-              price: product.price ?? 0,
-            }}
-            triggerLabel="Add to Cart"
-            disabled={!inStock}
-          />
+        {!inStock && <span className="mt-1 inline-block text-xs font-medium text-red-500">Out of Stock</span>}
+        <div className="mt-auto pt-1">
+          <QuickAddModal product={{id: product.id, name: product.name, slug: product.slug, main_image: product.main_image, price: product.price ?? 0}}
+            triggerLabel="Add to Cart" disabled={!inStock}
+            triggerClassName="h-8 w-full rounded-md bg-gradient-to-r from-emerald-600 to-teal-500 px-2 text-[11px] font-semibold text-white shadow-none transition-colors hover:from-emerald-700 hover:to-teal-600" />
         </div>
       </div>
-    </Link>
+    </article>
   );
 }

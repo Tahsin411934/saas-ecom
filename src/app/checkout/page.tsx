@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, CheckCircle, Loader2, ArrowLeft } from "lucide-react";
@@ -25,6 +25,18 @@ export default function CheckoutPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [orderNumbers, setOrderNumbers] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!success) return;
+
+    // Checkout is replaced in place, so route navigation does not reset its scroll.
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    const redirectTimer = window.setTimeout(() => {
+      router.push("/", { scroll: true });
+    }, 3000);
+
+    return () => window.clearTimeout(redirectTimer);
+  }, [success, router]);
   // Guest-only field: a logged-out buyer must give their name so the order
   // has someone to deliver to (logged-in users come from their profile).
   const [customerName, setCustomerName] = useState("");
@@ -153,10 +165,6 @@ export default function CheckoutPage() {
           shipping: shippingCost,
         });
 
-        // Redirect to home after 3 seconds
-        setTimeout(() => {
-          router.push("/");
-        }, 3000);
       } else {
         setError(result.message || "Checkout failed. Please try again.");
       }

@@ -29,9 +29,10 @@ interface QuickAddModalProps {
   };
   triggerLabel?: string;
   disabled?: boolean;
+  triggerClassName?: string;
 }
 
-export default function QuickAddModal({ product, triggerLabel = "Add to Cart", disabled = false }: QuickAddModalProps) {
+export default function QuickAddModal({ product, triggerLabel = "Add to Cart", disabled = false, triggerClassName }: QuickAddModalProps) {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -157,7 +158,7 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
       <DialogTrigger asChild>
         <Button
           size="sm"
-          className="w-full bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary)] shadow-sm"
+          className={triggerClassName ?? "w-full bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary)] shadow-sm"}
           disabled={disabled}
         >
           {triggerLabel}
