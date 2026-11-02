@@ -9,6 +9,8 @@ import {
   CarouselContent,
   CarouselItem,
   CarouselDots,
+  CarouselPrevious,
+  CarouselNext,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
@@ -21,10 +23,10 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
 
   return (
     <section
-      className="w-full bg-gradient-to-br from-green-50 via-white to-green-50"
+      className="w-full bg-white pt-2 md:pt-3"
       aria-label="Promotional banners"
     >
-      <div className="mx-auto max-w-[1400px] md:px-4 ">
+      <div className="mx-auto max-w-[1400px] px-3 md:px-6">
         <Carousel
           opts={{
             loop: true,
@@ -40,39 +42,39 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
           ]}
           className="relative md:rounded-2xl"
         >
+          <div className="relative">
           <CarouselContent>
             {banners.map((banner, index) => (
               <CarouselItem key={banner.id}>
-                <div className="relative flex min-h-[220px] items-center overflow-hidden md:min-h-[320px] md:rounded-2xl lg:min-h-[360px] xl:min-h-[380px]">
+                <div className="relative flex min-h-[220px] items-center overflow-hidden rounded-xl bg-green-50 md:aspect-[3.5/1] md:min-h-[280px] md:rounded-2xl">
                   {/* Full Background Image */}
                   {banner.banner_image && (
                     <Image
                       src={banner.banner_image}
                       alt={banner.title || `Banner ${index + 1}`}
                       fill
-                      sizes="(max-width: 768px) 100vw, 1400px"
+                      sizes="(max-width: 768px) calc(100vw - 24px), (max-width: 1400px) calc(100vw - 48px), 1352px"
                       className="object-cover"
-                      priority={index === 0}
                       loading={index === 0 ? "eager" : "lazy"}
                       unoptimized
                     />
                   )}
 
                   {/* Overlay for text readability */}
-                  <div className="absolute inset-0 bg-black/10" aria-hidden="true" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/30 via-transparent to-transparent" aria-hidden="true" />
 
                   {/* Content */}
-                  <div className="relative z-10 flex w-full flex-col items-start gap-3 px-6 py-6 md:gap-4 md:px-12 md:py-8 lg:px-16">
+                  <div className="relative z-10 flex w-full flex-col items-start gap-3 px-8 py-6 md:gap-3 md:px-14 md:py-8 lg:px-20">
                     {/* Small Tag */}
                     {banner.smtag && (
-                      <span className="inline-flex items-center rounded-full bg-[var(--color-primary)]/90 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-white backdrop-blur-sm">
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-emerald-950 md:text-xs">
                         {banner.smtag}
                       </span>
                     )}
 
                     {/* Title */}
                     {banner.title && (
-                      <h1 className="max-w-xl text-xl font-semibold leading-tight text-gray-800 drop-shadow-lg md:text-3xl lg:text-4xl xl:text-5xl xl:leading-[1.15]">
+                      <h1 className="max-w-[65%] text-2xl font-bold leading-tight tracking-tight text-gray-900 md:max-w-[50%] md:text-3xl lg:text-4xl xl:text-5xl xl:leading-[1.1]">
                         {banner.title.includes("\n")
                           ? banner.title.split("\n").map((line, i) => (
                             <span key={i}>
@@ -97,7 +99,7 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
 
                     {/* Subtitle */}
                     {banner.subtitle && (
-                      <p className="hidden max-w-lg text-sm leading-relaxed text-gray-600 drop-shadow md:block lg:text-base">
+                      <p className="hidden max-w-[45%] text-sm leading-relaxed text-gray-700 md:block lg:text-base">
                         {banner.subtitle}
                       </p>
                     )}
@@ -107,7 +109,7 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
                       {banner.primary_btn && (
                         <Link
                           href={banner.primary_btn_url || '/shop'}
-                          className="inline-flex h-8 lg:h-12 items-center gap-2 rounded-full px-5 lg:px-7 text-sm font-semibold shadow-lg transition-all hover:opacity-90 hover:shadow-xl"
+                          className="inline-flex h-9 items-center gap-2 rounded-lg px-5 text-xs font-semibold shadow-sm transition-all hover:opacity-90 md:h-10 md:text-sm lg:px-6"
                           style={{
                             backgroundColor: banner.primary_btn_color || '#1A462F',
                             color: banner.primary_btn_text_color || '#ffffff',
@@ -121,7 +123,7 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
                       {banner.secondary_btn && (
                         <Link
                           href={banner.secondary_btn_url || '/shop'}
-                          className="hidden md:inline-flex h-12 items-center rounded-full border px-7 text-sm font-semibold shadow-lg backdrop-blur-sm transition-all hover:opacity-90"
+                          className="hidden h-10 items-center rounded-lg border px-6 text-sm font-semibold shadow-sm transition-all hover:opacity-90 md:inline-flex"
                           style={{
                             backgroundColor: banner.secondary_btn_color || '#ffffff',
                             borderColor: banner.secondary_btn_color || 'rgba(255,255,255,0.4)',
@@ -138,11 +140,20 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
               </CarouselItem>
             ))}
           </CarouselContent>
+          {banners.length > 1 && (
+            <>
+              <CarouselPrevious className="left-1 h-8 w-8 border-gray-100 bg-white/95 text-gray-600 shadow-md md:-left-2" />
+              <CarouselNext className="right-1 h-8 w-8 border-gray-100 bg-white/95 text-gray-600 shadow-md md:-right-2" />
+            </>
+          )}
+          </div>
 
           {/* Dot indicators */}
-          <div className="mt-4 min-h-4">
-            <CarouselDots />
-          </div>
+          {banners.length > 1 && (
+            <div className="flex h-5 items-center justify-center">
+              <CarouselDots className="gap-1 [&_button]:h-1 [&_button]:w-1 [&_button[aria-selected=true]]:w-5" />
+            </div>
+          )}
         </Carousel>
       </div>
     </section>

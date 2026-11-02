@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import Autoplay from "embla-carousel-autoplay";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
 import { type Category } from "@/services/category.service";
@@ -22,12 +21,12 @@ export default function CategoryScroll({
   }, [emblaApi, categories]);
 
   return (
-    <section className="w-full py-6" aria-label="Shop by category">
-      <div className="mx-auto max-w-[1200px]">
-        <div className="relative">
+    <section className="w-full bg-white pb-5 pt-2 md:pb-6 md:pt-3" aria-label="Shop by category">
+      <div className="mx-auto max-w-[1400px] px-3 md:px-6">
+        <div className="group/categories relative">
           <button
             onClick={() => emblaApi?.scrollPrev()}
-            className="absolute left-0 top-1/2 z-10 hidden h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md transition-all hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] md:flex"
+            className="absolute -left-2 top-9 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-gray-100 bg-white shadow-sm transition-all hover:text-[var(--color-primary)] md:flex md:opacity-0 md:focus-visible:opacity-100 md:group-hover/categories:opacity-100"
             aria-label="Scroll categories left"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -37,33 +36,31 @@ export default function CategoryScroll({
             opts={{
               align: "start",
               containScroll: "trimSnaps",
-              loop: true,
+              loop: false,
+              dragFree: true,
             }}
-            plugins={[
-              Autoplay({ delay: 4000, stopOnInteraction: false, stopOnMouseEnter: true }),
-            ]}
             setApi={setEmblaApi}
             className="overflow-hidden"
           >
-            <CarouselContent className="flex gap-4 pb-2 scrollbar-hide px-5 md:px-0">
+            <CarouselContent className="-ml-2">
               {categories.map((category) => (
                 <CarouselItem
                   key={category.id}
-                  className="pl-0 basis-[calc((100vw-4rem)/3.5)] lg:basis-[calc((100vw-4rem)/5.5)] max-w-[220px]"
+                  className="basis-[22%] pl-2 sm:basis-1/6 lg:basis-[12.5%] xl:basis-[10%]"
                 >
                   <Link
                     href={`/category/${category.slug}`}
-                    className="group flex min-h-full min-w-0 flex-col items-center gap-2 rounded-3xl boeder-none md:border border-gray-200 bg-white px-4 py-4 text-center transition hover:border-[var(--color-primary)] hover:shadow-lg"
+                    className="group flex h-full min-w-0 flex-col items-center gap-2 rounded-lg px-1 py-1 text-center outline-offset-2 focus-visible:outline-2 focus-visible:outline-[var(--color-primary)]"
                     aria-label={`Shop ${category.name}`}
                   >
-                    <div className="relative h-[72px] w-[72px] overflow-hidden rounded-full bg-gray-100 shadow-sm ring-2 ring-transparent transition-all duration-200 group-hover:ring-[var(--color-primary)] group-hover:shadow-md">
+                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-gray-100 ring-2 ring-transparent transition-all duration-200 group-hover:ring-[var(--color-primary)] md:h-[72px] md:w-[72px]">
                       {category.image ? (
                         <Image
                           src={category.image}
                           alt={category.name}
                           fill
-                          sizes="72px"
-                          className="object-cover transition-transform duration-300 group-hover:scale-110"
+                          sizes="(max-width: 767px) 56px, 72px"
+                          className="object-contain p-1.5 transition-transform duration-300 group-hover:scale-105"
                           unoptimized
                         />
                       ) : (
@@ -73,7 +70,7 @@ export default function CategoryScroll({
                       )}
                     </div>
 
-                    <span className="line-clamp-2 text-center text-xs font-medium leading-tight text-gray-700 transition-colors group-hover:text-[var(--color-primary)]">
+                    <span className="line-clamp-2 text-center text-[10px] font-medium leading-4 text-gray-800 transition-colors group-hover:text-[var(--color-primary)] md:text-xs">
                       {category.name}
                     </span>
                   </Link>
@@ -84,7 +81,7 @@ export default function CategoryScroll({
 
           <button
             onClick={() => emblaApi?.scrollNext()}
-            className="absolute right-0 top-1/2 z-10 hidden h-10 w-10 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md transition-all hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] md:flex"
+            className="absolute -right-2 top-9 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-gray-100 bg-white shadow-sm transition-all hover:text-[var(--color-primary)] md:flex md:opacity-0 md:focus-visible:opacity-100 md:group-hover/categories:opacity-100"
             aria-label="Scroll categories right"
           >
             <ChevronRight className="h-5 w-5" />
