@@ -23,10 +23,10 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
 
   return (
     <section
-      className="w-full bg-white pt-2 md:pt-3"
+      className="w-full bg-white "
       aria-label="Promotional banners"
     >
-      <div className="mx-auto max-w-[1400px] px-3 md:px-6">
+      <div className="mx-auto max-w-[1400px] ">
         <Carousel
           opts={{
             loop: true,
