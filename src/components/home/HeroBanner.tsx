@@ -43,7 +43,7 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
           <CarouselContent>
             {banners.map((banner, index) => (
               <CarouselItem key={banner.id}>
-                <div className="relative flex min-h-[250px] items-center overflow-hidden md:rounded-2xl md:min-h-[500px]">
+                <div className="relative flex min-h-[220px] items-center overflow-hidden md:min-h-[320px] md:rounded-2xl lg:min-h-[360px] xl:min-h-[380px]">
                   {/* Full Background Image */}
                   {banner.banner_image && (
                     <Image
@@ -62,7 +62,7 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
                   <div className="absolute inset-0 bg-black/10" aria-hidden="true" />
 
                   {/* Content */}
-                  <div className="relative z-10 flex w-full flex-col items-start gap-5 px-8 md:px-16">
+                  <div className="relative z-10 flex w-full flex-col items-start gap-3 px-6 py-6 md:gap-4 md:px-12 md:py-8 lg:px-16">
                     {/* Small Tag */}
                     {banner.smtag && (
                       <span className="inline-flex items-center rounded-full bg-[var(--color-primary)]/90 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-white backdrop-blur-sm">
@@ -72,7 +72,7 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
 
                     {/* Title */}
                     {banner.title && (
-                      <h1 className="max-w-xl text-xl md:text-3xl font-semibold leading-tight text-gray-800 drop-shadow-lg md:text-4xl lg:text-5xl xl:text-[55px] xl:leading-[1.15]">
+                      <h1 className="max-w-xl text-xl font-semibold leading-tight text-gray-800 drop-shadow-lg md:text-3xl lg:text-4xl xl:text-5xl xl:leading-[1.15]">
                         {banner.title.includes("\n")
                           ? banner.title.split("\n").map((line, i) => (
                             <span key={i}>
@@ -97,13 +97,13 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
 
                     {/* Subtitle */}
                     {banner.subtitle && (
-                      <p className="hidden md:flex max-w-lg text-sm leading-relaxed text-gray-600 drop-shadow md:text-base">
+                      <p className="hidden max-w-lg text-sm leading-relaxed text-gray-600 drop-shadow md:block lg:text-base">
                         {banner.subtitle}
                       </p>
                     )}
 
                     {/* Buttons */}
-                    <div className="flex flex-wrap items-center gap-3 pt-2">
+                    <div className="flex flex-wrap items-center gap-3 pt-1">
                       {banner.primary_btn && (
                         <Link
                           href={banner.primary_btn_url || '/shop'}
