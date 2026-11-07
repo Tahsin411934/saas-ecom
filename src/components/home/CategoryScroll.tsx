@@ -61,7 +61,6 @@ export default function CategoryScroll({
                           fill
                           sizes="(max-width: 767px) 56px, 72px"
                           className="object-contain p-1.5 transition-transform duration-300 group-hover:scale-105"
-                          unoptimized
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--color-primary)]/10 to-[var(--color-primary)]/10 text-xl font-bold text-[var(--color-primary)]">

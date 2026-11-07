@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, CheckCircle, Loader2, ArrowLeft } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
@@ -253,7 +254,7 @@ export default function CheckoutPage() {
                   <div key={`${item.id}-${item.variant_id}-${item.variant_option_id}`} className="flex gap-4 pb-4 border-b border-gray-100 last:border-0">
                     <div className="w-16 h-16 rounded-lg bg-gray-100 flex-shrink-0 overflow-hidden">
                       {item.image ? (
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        <Image src={item.image} alt={item.name} width={64} height={64} sizes="64px" className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">No img</div>
                       )}

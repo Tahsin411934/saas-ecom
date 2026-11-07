@@ -67,7 +67,6 @@ export default function AllCategoriesPage({ categories }: AllCategoriesPageProps
                         fill
                         sizes="80px"
                         className="object-cover transition-transform duration-300 group-hover:scale-110"
-                        unoptimized
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--color-primary)]/10 to-[var(--color-primary)]/5 text-xl font-bold text-[var(--color-primary)]">

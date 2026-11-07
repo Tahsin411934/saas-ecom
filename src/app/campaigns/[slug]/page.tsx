@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { buildApiUrl } from "@/lib/api-url";
 import { rewriteLegacyAssetHosts } from "@/lib/asset-url";
 import { REVALIDATE } from "@/config/revalidate";
@@ -131,9 +132,13 @@ export default async function CampaignPage({ params }: { params: Promise<{ slug:
           </p>
         )}
         {campaign.banner_image && (
-          <img
+          <Image
             src={campaign.banner_image}
             alt={campaign.name}
+            width={1152}
+            height={256}
+            sizes="(max-width: 1152px) calc(100vw - 88px), 1064px"
+            preload
             className="mt-4 max-h-64 w-full rounded-xl object-cover"
           />
         )}
@@ -154,9 +159,11 @@ export default async function CampaignPage({ params }: { params: Promise<{ slug:
               >
                 <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
                   {product.main_image && (
-                    <img
+                    <Image
                       src={product.main_image}
                       alt={product.name}
+                      fill
+                      sizes="(max-width: 767px) 42vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, 225px"
                       className="h-full w-full object-cover"
                     />
                   )}

@@ -233,7 +233,6 @@ export default function CtaSection({ cta }: CtaSectionProps) {
                     fill
                     sizes="80px"
                     className="object-cover"
-                    unoptimized
                   />
                 </div>
               )}
@@ -259,9 +258,8 @@ export default function CtaSection({ cta }: CtaSectionProps) {
                   src={cta.banner_image || cta.image || ""}
                   alt={cta.title || "Banner"}
                   fill
+                  sizes="(max-width: 1200px) calc(100vw - 32px), 1168px"
                   className="object-cover"
-                  unoptimized
-                  priority
                 />
                 <div
                   className="absolute inset-0"
@@ -341,7 +339,6 @@ export default function CtaSection({ cta }: CtaSectionProps) {
                     fill
                     sizes="96px"
                     className="object-cover"
-                    unoptimized
                   />
                 </div>
               )}
@@ -393,8 +390,8 @@ export default function CtaSection({ cta }: CtaSectionProps) {
                   src={cta.image}
                   alt={cta.title || "CTA"}
                   fill
+                  sizes="(max-width: 767px) calc(100vw - 32px), (max-width: 1200px) 50vw, 584px"
                   className="object-cover"
-                  unoptimized
                 />
               ) : (
                 <div
@@ -502,7 +499,6 @@ export default function CtaSection({ cta }: CtaSectionProps) {
                   fill
                   sizes="80px"
                   className="object-cover"
-                  unoptimized
                 />
               </div>
             )}

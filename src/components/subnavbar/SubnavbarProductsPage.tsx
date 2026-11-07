@@ -65,7 +65,6 @@ export default function SubnavbarProductsPage({
                   fill
                   sizes="(max-width: 768px) 80px, 96px"
                   className="object-cover"
-                  unoptimized
                 />
               </div>
             )}

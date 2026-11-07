@@ -30,7 +30,6 @@ export default function CategorySection({ category, products }: CategorySectionP
                   fill
                   sizes="28px"
                   className="object-contain"
-                  unoptimized
                 />
               </div>
             )}

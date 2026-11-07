@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, Minus, Plus, Trash2, ArrowLeft, ArrowRight } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
@@ -79,7 +80,7 @@ export default function CartPage() {
               <div key={`${item.id}-${item.variant_id}-${item.variant_option_id ?? 'base'}`} className="bg-white rounded-xl border border-gray-100 p-4 flex gap-4 hover:shadow-sm transition-shadow">
                 <div className="w-24 h-24 rounded-lg bg-gray-100 flex-shrink-0 overflow-hidden">
                   {item.image ? (
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover"
+                    <Image src={item.image} alt={item.name} width={96} height={96} sizes="96px" className="w-full h-full object-cover"
                       onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">No img</div>

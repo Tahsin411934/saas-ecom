@@ -135,10 +135,9 @@ function MainImageViewer({
         src={src}
         alt={alt}
         fill
-        sizes="(max-width: 1024px) 100vw, calc(100% - 90px - 1rem)"
+        sizes="(max-width: 767px) calc(100vw - 64px), (max-width: 1023px) 60vw, (max-width: 1280px) 45vw, 550px"
         className="object-contain p-4 pointer-events-none"
-        priority={priority}
-        unoptimized
+        preload={priority}
         draggable={false}
       />
 
@@ -210,7 +209,6 @@ function ThumbnailButton({
         fill
         sizes={size === "desktop" ? "90px" : "70px"}
         className="object-over"
-        unoptimized
         draggable={false}
       />
     </button>

@@ -71,7 +71,7 @@ function useImageZoom(zoomFactor = 2.5) {
   };
 }
 
-function MainImageViewer({ src, alt, priority = true, height = "h-72" }: { src: string; alt: string; priority?: boolean; height?: string }) {
+function MainImageViewer({ src, alt, height = "h-72" }: { src: string; alt: string; height?: string }) {
   const { containerRef, imageRef, zoom, zoomFactor, handlers } = useImageZoom(2.5);
 
   return (
@@ -81,10 +81,9 @@ function MainImageViewer({ src, alt, priority = true, height = "h-72" }: { src: 
         src={src}
         alt={alt}
         fill
-        sizes="360px"
+        sizes="(max-width: 639px) calc(100vw - 80px), (max-width: 767px) 70vw, 320px"
         className="object-contain p-4 pointer-events-none"
-        priority={priority}
-        unoptimized
+        loading="eager"
         draggable={false}
       />
 
@@ -130,7 +129,7 @@ function ThumbnailButton({ src, alt, isActive, onClick }: { src: string; alt: st
       aria-current={isActive ? "true" : undefined}
       type="button"
     >
-      <Image src={src} alt={alt} fill sizes="70px" className="object-cover" unoptimized draggable={false} />
+      <Image src={src} alt={alt} fill sizes="70px" className="object-cover" draggable={false} />
     </button>
   );
 }
@@ -153,7 +152,7 @@ export default function ProductGalleryModal({ images, mainHeight = "h-72" }: Pro
 
   return (
     <div className="space-y-3 w-full">
-      <MainImageViewer src={current.url} alt={current.alt_text || `Product image ${activeIndex + 1}`} priority={activeIndex === 0} height={mainHeight} />
+      <MainImageViewer src={current.url} alt={current.alt_text || `Product image ${activeIndex + 1}`} height={mainHeight} />
 
       {images.length > 1 && (
         <div className="flex gap-3 overflow-x-auto pb-2">

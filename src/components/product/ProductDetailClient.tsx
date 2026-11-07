@@ -805,7 +805,6 @@ export default function ProductDetailClient({
                             fill
                             sizes="(max-width: 768px) 50vw, 25vw"
                             className="object-contain p-3 group-hover:scale-105 transition-transform duration-300"
-                            unoptimized
                           />
                         ) : (
                           <div className="flex h-full items-center justify-center text-gray-300">

@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Search, Heart, ShoppingCart, Menu, X, PackagePlus, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -113,7 +114,7 @@ export default function MainHeader({ serverCategories, serverSettings, serverUse
         {/* Logo */}
         <Link href="/" className="flex items-center gap-0.5 shrink-0">
           {serverSettings?.site_logo ? (
-            <img src={normalizeAssetUrl(serverSettings.site_logo)} alt={serverSettings.site_name || "OneHaatbd"} className="h-10 w-auto object-contain" />
+            <Image src={normalizeAssetUrl(serverSettings.site_logo)} alt={serverSettings.site_name || "OneHaatbd"} width={180} height={40} sizes="180px" loading="eager" className="h-10 w-auto object-contain" />
           ) : (
             <>
               <span className="text-[30px] font-bold tracking-tight text-[#111827]">

@@ -120,7 +120,7 @@ export default function ProductCard({ product, viewMode = "grid" }: ProductCardP
                   fill
                   sizes="128px"
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  unoptimized
+
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-gray-400">
@@ -194,7 +194,7 @@ export default function ProductCard({ product, viewMode = "grid" }: ProductCardP
           {product.main_image ? (
             <Image src={product.main_image} alt={product.name} fill
               sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 225px"
-              className="object-contain p-1 transition-transform duration-300 group-hover:scale-105" loading="lazy" unoptimized />
+              className="object-contain p-1 transition-transform duration-300 group-hover:scale-105" loading="lazy" />
           ) : (
             <div className="flex h-full items-center justify-center text-gray-300" aria-hidden="true"><ShoppingCart className="h-10 w-10" /></div>
           )}

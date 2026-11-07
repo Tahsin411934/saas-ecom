@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import type { Campaign, CampaignProduct } from "@/services/campaign.service";
 import QuickAddCardButton from "@/components/cart/QuickAddCardButton";
 import {
@@ -53,9 +54,11 @@ export default function CampaignSection({ campaigns }: { campaigns: Campaign[] }
           >
             <div className="relative p-5 sm:p-7">
               {campaign.banner_image && (
-                <img
+                <Image
                   src={campaign.banner_image}
                   alt=""
+                  fill
+                  sizes="(max-width: 1280px) calc(100vw - 32px), 1248px"
                   className="absolute inset-0 h-full w-full object-cover opacity-20"
                 />
               )}
@@ -112,9 +115,11 @@ export default function CampaignSection({ campaigns }: { campaigns: Campaign[] }
                         >
                           <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
                             {product.main_image && (
-                              <img
+                              <Image
                                 src={product.main_image}
                                 alt={product.name}
+                                fill
+                                sizes="(max-width: 1023px) 44vw, 230px"
                                 className="h-full w-full object-cover"
                               />
                             )}

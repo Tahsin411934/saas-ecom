@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronDown, Package, Grid3X3 } from "lucide-react";
 import {
   DropdownMenu,
@@ -108,7 +109,7 @@ export default function NavigationBar({
                       role="menuitem"
                     >
                     <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gray-100 overflow-hidden" aria-hidden="true">
-                        {cat.image ? <img src={cat.image} alt={cat.name} className="h-full w-full object-cover" /> : <span className="text-xs text-gray-500">{cat.name.charAt(0)}</span>}
+                        {cat.image ? <Image src={cat.image} alt={cat.name} width={28} height={28} sizes="28px" className="h-full w-full object-cover" /> : <span className="text-xs text-gray-500">{cat.name.charAt(0)}</span>}
                       </span>
                       <span>{cat.name}</span>
                     </Link>

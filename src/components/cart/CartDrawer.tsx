@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { X, Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import {
@@ -61,7 +62,7 @@ export default function CartDrawer() {
                 <div key={`${item.id}-${item.variant_id}`} className="flex gap-4 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 group">
                   <div className="w-20 h-20 rounded-lg bg-gray-200 flex-shrink-0 overflow-hidden">
                     {item.image ? (
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover"
+                      <Image src={item.image} alt={item.name} width={80} height={80} sizes="80px" className="w-full h-full object-cover"
                         onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">No image</div>

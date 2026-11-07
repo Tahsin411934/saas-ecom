@@ -88,7 +88,6 @@ export default function WishlistPage() {
                           fill
                           sizes="(max-width: 639px) 50vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, 20vw"
                           className="object-cover transition-transform duration-300 group-hover:scale-105"
-                          unoptimized
                         />
                       ) : (
                         <div className="flex h-full items-center justify-center text-gray-400">
