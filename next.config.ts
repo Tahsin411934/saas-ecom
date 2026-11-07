@@ -61,7 +61,8 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [480, 640, 768, 1024, 1280, 1536],
     imageSizes: [16, 32, 48, 64, 96, 128, 256],
-    minimumCacheTTL: 0,
+    // Uploaded assets have unique filenames, so optimized copies can be reused.
+    minimumCacheTTL: 86400,
   },
   reactStrictMode: true,
   compress: true,

@@ -53,10 +53,10 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
                       src={banner.banner_image}
                       alt={banner.title || `Banner ${index + 1}`}
                       fill
-                      sizes="(max-width: 768px) calc(100vw - 24px), (max-width: 1400px) calc(100vw - 48px), 1352px"
+                      sizes="(max-width: 1290px) 100vw, 1290px"
                       className="object-cover"
-                      loading={index === 0 ? "eager" : "lazy"}
-                      unoptimized
+                      preload={index === 0}
+                      loading={index === 0 ? undefined : "lazy"}
                     />
                   )}
 
