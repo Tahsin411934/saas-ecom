@@ -26,7 +26,7 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
       className="w-full bg-white "
       aria-label="Promotional banners"
     >
-      <div className="mx-auto max-w-[1400px] ">
+      <div className="mx-auto max-w-[1290px] ">
         <Carousel
           opts={{
             loop: true,
