@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     images: [
       {
-        url: `${SITE_URL}/og-image.jpg`,
+        url: `${SITE_URL}/defalut.jpg`,
         width: 1200,
         height: 630,
         alt: `${SITE_NAME} - Premium Online Shopping in Bangladesh`,
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${SITE_NAME} - Premium Online Shopping in Bangladesh`,
     description: SITE_DESCRIPTION,
-    images: [`${SITE_URL}/og-image.jpg`],
+    images: [`${SITE_URL}/defalut.jpg`],
   },
   alternates: {
     canonical: SITE_URL,
