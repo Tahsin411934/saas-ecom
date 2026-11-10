@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { ShoppingCart, CheckCircle, Loader2, ArrowLeft } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { selectCartItems, selectCartTotal, selectShippingTotal, clearCart } from "@/lib/features/cart/cartSlice";
@@ -13,7 +12,6 @@ import { trackBeginCheckout, trackPurchase } from "@/lib/gtm";
 
 export default function CheckoutPage() {
   const dispatch = useAppDispatch();
-  const router = useRouter();
   const items = useAppSelector(selectCartItems);
   const total = useAppSelector(selectCartTotal);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
@@ -30,14 +28,9 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (!success) return;
 
-    // Checkout is replaced in place, so route navigation does not reset its scroll.
+    // Bring the confirmation screen into view after the order is placed.
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-    const redirectTimer = window.setTimeout(() => {
-      router.push("/", { scroll: true });
-    }, 3000);
-
-    return () => window.clearTimeout(redirectTimer);
-  }, [success, router]);
+  }, [success]);
   // Guest-only field: a logged-out buyer must give their name so the order
   // has someone to deliver to (logged-in users come from their profile).
   const [customerName, setCustomerName] = useState("");
