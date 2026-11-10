@@ -17,7 +17,8 @@ export const categoryProductsService = {
       q?: string;
       brand_id?: number;
       refresh?: boolean;
-    }
+    },
+    signal?: AbortSignal
   ): Promise<CategoryProductsData> {
     const query = new URLSearchParams();
 
@@ -37,6 +38,7 @@ export const categoryProductsService = {
     const endpoint = `/categories/${slug}/products${qs ? `?${qs}` : ""}`;
 
     const res = await api<CategoryProductsRawResponse>(endpoint, {
+      signal,
       // refresh = 1 (client-side filter/sort) always hits the API fresh;
       // initial server render uses the central category revalidate window.
       revalidate: params?.refresh ? 0 : REVALIDATE.CATEGORY,

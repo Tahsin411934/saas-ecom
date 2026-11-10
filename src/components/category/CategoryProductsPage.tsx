@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  SlidersHorizontal,
   ChevronLeft,
   ShoppingCart,
   ArrowUpDown,
@@ -19,16 +18,21 @@ import {
   type CategorySortOption,
   SORT_OPTIONS,
 } from "@/types/product";
-import { categoryProductsService } from "@/services/category-products.service";
+import { useCategoryProducts } from "./useCategoryProducts";
 import { brandsService, type BrandOption } from "@/services/brands.service";
 import { useAppDispatch } from "@/lib/hooks";
 import { fetchWishlistItems } from "@/lib/features/wishlist/wishlistSlice";
 import { trackViewItemList, trackViewCategory } from "@/lib/gtm";
 import dynamic from "next/dynamic";
+import type { Props as SelectProps } from "react-select";
 import "./CategoryProductsPage.css";
 
 // Dynamically import react-select to avoid SSR issues
-const Select = dynamic(() => import("react-select"), { ssr: false });
+interface BrandSelectOption {
+  value: number;
+  label: string;
+}
+const Select = dynamic<SelectProps<BrandSelectOption, false>>(() => import("react-select"), { ssr: false });
 
 interface CategoryProductsPageProps {
   slug: string;
@@ -48,29 +52,20 @@ export default function CategoryProductsPage({
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
 
-  // Read initial values from URL params
-  const sortFromUrl = searchParams.get("sort") as CategorySortOption | null;
-
-  const [sortBy, setSortBy] = useState<CategorySortOption>(
-    sortFromUrl && SORT_OPTIONS.some((o) => o.value === sortFromUrl)
-      ? sortFromUrl
-      : "latest"
-  );
+  const queryString = searchParams.toString();
+  const { data, sort: sortBy, brandId, page, pending: resultsPending, error: productsError, retry } =
+    useCategoryProducts(slug, initialData, queryString);
   const [selectedBrand, setSelectedBrand] = useState<BrandOption | null>(null);
-  const [showMobileFilter, setShowMobileFilter] = useState(false);
-  const [data, setData] = useState<CategoryProductsData>(initialData);
-  const [loading, setLoading] = useState(false);
+
   const [brands, setBrands] = useState<BrandOption[]>([]);
   const [brandLoading, setBrandLoading] = useState(false);
   const [brandSearchInput, setBrandSearchInput] = useState("");
   const [brandPage, setBrandPage] = useState(1);
-  const [brandTotal, setBrandTotal] = useState(0);
+
   const [brandHasMore, setBrandHasMore] = useState(false);
   const categoryId = initialData.category?.id;
-  const requestId = useRef(0);
+
   const brandRequestId = useRef(0);
-  const lastAppliedFilter = useRef<string | null>(null);
-  const queryString = searchParams.toString();
 
   // Load brands for the dropdown (first 20)
   const loadBrands = useCallback(
@@ -86,7 +81,7 @@ export default function CategoryProductsPage({
         });
         const newBrands = result.data || [];
         if (currentRequestId !== brandRequestId.current) return [];
-        setBrandTotal(result.meta?.total || 0);
+
         setBrandHasMore(
           (result.meta?.current_page || 1) < (result.meta?.last_page || 1)
         );
@@ -114,105 +109,26 @@ export default function CategoryProductsPage({
     setSelectedBrand(null);
     setBrandSearchInput("");
     setBrandPage(1);
-    setBrandTotal(0);
+
     setBrandHasMore(false);
     void loadBrands({ page: 1, categoryId });
   }, [categoryId, loadBrands]);
 
   useEffect(() => {
-    setData(initialData);
-  }, [initialData, slug]);
+    setSelectedBrand((previous) => {
+      if (!brandId) return null;
+      return brands.find((brand) => brand.id === brandId)
+        ?? (previous?.id === brandId ? previous : null);
+    });
+  }, [brandId, brands]);
 
-  // Keep controls aligned with URL changes, including browser back/forward.
-  useEffect(() => {
-    const params = new URLSearchParams(queryString);
-    const sort = params.get("sort") as CategorySortOption | null;
-    const brandId = params.get("brand_id");
+  useEffect(() => () => { brandRequestId.current += 1; }, [slug]);
 
-    setSortBy(sort && SORT_OPTIONS.some((option) => option.value === sort) ? sort : "latest");
-    if (!brandId) {
-      setSelectedBrand(null);
-      return;
-    }
-
-    const matchingBrand = brands.find((brand) => brand.id === Number(brandId));
-    if (matchingBrand) setSelectedBrand(matchingBrand);
-    else if (brands.length > 0 && !brandLoading) setSelectedBrand(null);
-  }, [queryString, brands, brandLoading]);
-
-  useEffect(() => {
-    return () => {
-      requestId.current += 1;
-      brandRequestId.current += 1;
-    };
-  }, [slug]);
-
-  useEffect(() => {
-    dispatch(fetchWishlistItems());
-  }, [dispatch]);
-
-  // Build query params and fetch
-  const fetchProducts = useCallback(
-    (params: {
-      sort?: CategorySortOption;
-      brand_id?: number | null;
-      page?: number;
-    }) => {
-      const currentRequestId = ++requestId.current;
-      setLoading(true);
-
-      const queryParams: {
-        per_page: number;
-        refresh: boolean;
-        sort?: CategorySortOption;
-        brand_id?: number;
-        page?: number;
-      } = { per_page: 24, refresh: true };
-      if (params.sort) queryParams.sort = params.sort;
-      if (params.brand_id) queryParams.brand_id = params.brand_id;
-      if (params.page) queryParams.page = params.page;
-
-      categoryProductsService
-        .getBySlug(slug, queryParams)
-        .then((result) => {
-          if (currentRequestId === requestId.current) {
-            setData(result);
-            setLoading(false);
-          }
-        })
-        .catch(() => {
-          if (currentRequestId === requestId.current) setLoading(false);
-        });
-    },
-    [slug]
-  );
-
-  // Apply URL filters on direct loads and browser back/forward navigation.
-  useEffect(() => {
-    const params = new URLSearchParams(queryString);
-    const requestedSort = params.get("sort") as CategorySortOption | null;
-    const sort = requestedSort && SORT_OPTIONS.some((option) => option.value === requestedSort)
-      ? requestedSort
-      : "latest";
-    const brandId = Number(params.get("brand_id")) || null;
-    const page = Number(params.get("page")) || 1;
-    const filterKey = `${slug}:${sort}:${brandId ?? ""}:${page}`;
-    if (lastAppliedFilter.current === null) {
-      lastAppliedFilter.current = filterKey;
-      const hasUrlFilters = sort !== "latest" || brandId !== null || page !== 1;
-      if (!hasUrlFilters) return;
-    } else if (lastAppliedFilter.current === filterKey) {
-      return;
-    }
-
-    lastAppliedFilter.current = filterKey;
-    fetchProducts({ sort, brand_id: brandId, page });
-  }, [queryString, slug, fetchProducts]);
-
+  useEffect(() => { dispatch(fetchWishlistItems()); }, [dispatch]);
   // Update URL params
   const updateUrlParams = useCallback(
     (params: { sort?: string; brand_id?: string; page?: string }) => {
-      const newParams = new URLSearchParams(queryString);
+      const newParams = new URLSearchParams(window.location.search);
       Object.entries(params).forEach(([key, value]) => {
         if (value) {
           newParams.set(key, value);
@@ -224,15 +140,14 @@ export default function CategoryProductsPage({
       const nextUrl = `/category/${slug}${qs ? `?${qs}` : ""}`;
       window.history.replaceState(null, "", nextUrl);
     },
-    [slug, queryString]
+    [slug]
   );
 
   // Handle sort change
   const handleSortChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const newSort = e.target.value as CategorySortOption;
-      setSortBy(newSort);
-      setLoading(true);
+
       updateUrlParams({ sort: newSort, page: "" });
     },
     [updateUrlParams]
@@ -241,36 +156,22 @@ export default function CategoryProductsPage({
   // Handle brand change
   const handleBrandChange = useCallback(
     (option: BrandOption | null) => {
-      if (selectedBrand?.id === option?.id) return;
+      if (brandId === option?.id) return;
       setSelectedBrand(option);
-      setLoading(true);
+
       updateUrlParams({
         brand_id: option ? String(option.id) : "",
         page: "",
       });
     },
-    [selectedBrand, updateUrlParams]
+    [brandId, updateUrlParams]
   );
 
   const { products = [], category } = data;
+  const productCount = data.meta?.total ?? products.length;
   const displayName = category?.name || categoryName;
   const displayDescription = category?.description || categoryDescription;
   const displayImage = category?.image || categoryImage;
-  const currentParams = new URLSearchParams(queryString);
-  const currentSortParam = currentParams.get("sort") as CategorySortOption | null;
-  const currentSort = currentSortParam && SORT_OPTIONS.some((option) => option.value === currentSortParam)
-    ? currentSortParam
-    : "latest";
-  const currentBrandId = Number(currentParams.get("brand_id")) || null;
-  const currentPage = Number(currentParams.get("page")) || 1;
-  const currentFilterKey = `${slug}:${currentSort}:${currentBrandId ?? ""}:${currentPage}`;
-  const hasInitialUrlFilters = currentSort !== "latest" || currentBrandId !== null || currentPage !== 1;
-  const resultsPending = loading || (
-    lastAppliedFilter.current === null
-      ? hasInitialUrlFilters
-      : lastAppliedFilter.current !== currentFilterKey
-  );
-
   // GTM: Track category view
   useEffect(() => {
     if (category?.id) {
@@ -363,7 +264,7 @@ export default function CategoryProductsPage({
                     </p>
                   )}
                   <p className="mt-1 text-sm text-gray-400">
-                    {products.length} product{products.length !== 1 ? "s" : ""} found
+                    {productCount} product{productCount !== 1 ? "s" : ""} found
                   </p>
                 </div>
               </div>
@@ -379,7 +280,7 @@ export default function CategoryProductsPage({
                     isLoading={brandLoading}
                     options={brandOptions}
                     value={selectedBrandValue}
-                    onChange={(option: any) => {
+                    onChange={(option) => {
                       if (option) {
                         const brand = brands.find((b) => b.id === option.value);
                         handleBrandChange(brand || null);
@@ -394,8 +295,6 @@ export default function CategoryProductsPage({
                       return inputValue;
                     }}
                     filterOption={null}
-                    onMenuOpen={() => {}}
-                    onMenuClose={() => {}}
                     onMenuScrollToBottom={() => {
                       if (brandHasMore && !brandLoading) {
                         const nextPage = brandPage + 1;
@@ -408,16 +307,6 @@ export default function CategoryProductsPage({
                     aria-label="Filter by brand"
                   />
                 </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="md:hidden flex items-center gap-2 text-gray-700"
-                  onClick={() => setShowMobileFilter(!showMobileFilter)}
-                >
-                  <SlidersHorizontal className="h-4 w-4" />
-                  Filters
-                </Button>
 
                 <div className="flex items-center gap-2">
                   <ArrowUpDown className="h-4 w-4 text-gray-400" aria-hidden="true" />
@@ -437,12 +326,10 @@ export default function CategoryProductsPage({
                 </div>
 
                 {/* Reset Button */}
-                {(sortBy !== "latest" || selectedBrand) && (
+                {(sortBy !== "latest" || brandId) && (
                   <button
                     onClick={() => {
-                      setSortBy("latest");
                       setSelectedBrand(null);
-                      setLoading(true);
                       updateUrlParams({ sort: "", brand_id: "", page: "" });
                     }}
                     className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200"
@@ -477,9 +364,7 @@ export default function CategoryProductsPage({
               )}
               <button
                 onClick={() => {
-                  setSortBy("latest");
                   setSelectedBrand(null);
-                  setLoading(true);
                   updateUrlParams({ sort: "", brand_id: "", page: "" });
                 }}
                 className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200"
@@ -494,7 +379,12 @@ export default function CategoryProductsPage({
         {/* Main Content */}
         <div className="relative mx-auto min-h-[420px] max-w-[1200px] px-4 py-6" aria-busy={resultsPending}>
           {/* Products */}
-          {products.length > 0 ? (
+          {productsError ? (
+            <div role="alert" className="rounded-xl border border-red-100 bg-white p-8 text-center">
+              <p className="text-sm text-red-600">{productsError}</p>
+              <Button variant="outline" className="mt-4" onClick={retry}>Try again</Button>
+            </div>
+          ) : products.length > 0 ? (
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
@@ -531,10 +421,11 @@ export default function CategoryProductsPage({
           )}
 
           {/* Pagination */}
-          {products.length > 0 && (
+          {!productsError && products.length > 0 && (
             <div className="flex justify-center mt-10">
               <nav className="flex items-center gap-2" aria-label="Pagination">
-                <Button variant="outline" size="sm" disabled className="text-gray-400">
+                <Button variant="outline" size="sm" disabled={resultsPending || page <= 1}
+                  onClick={() => updateUrlParams({ page: String(page - 1) })}>
                   <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                   <span className="sr-only">Previous</span>
                 </Button>
@@ -543,9 +434,10 @@ export default function CategoryProductsPage({
                   size="sm"
                   className="bg-[var(--color-primary)] hover:bg-[var(--color-primary)] text-white min-w-[36px]"
                 >
-                  1
+                  {data.meta?.current_page ?? page}
                 </Button>
-                <Button variant="outline" size="sm" disabled className="text-gray-400">
+                <Button variant="outline" size="sm" disabled={resultsPending || page >= (data.meta?.last_page ?? 1)}
+                  onClick={() => updateUrlParams({ page: String(page + 1) })}>
                   <ChevronLeft className="h-4 w-4 rotate-180" aria-hidden="true" />
                   <span className="sr-only">Next</span>
                 </Button>
