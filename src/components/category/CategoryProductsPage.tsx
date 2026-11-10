@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import GlobalLoader from "@/components/ui/GlobalLoader";
 import ProductCard from "@/components/ui/ProductCard";
 import {
   type CategoryProductsData,
@@ -327,7 +328,7 @@ export default function CategoryProductsPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50" aria-busy={resultsPending}>
         {/* Category Hero Header */}
         <div className="bg-white border-b border-gray-200">
           <div className="mx-auto max-w-[1200px] px-4">
@@ -362,9 +363,7 @@ export default function CategoryProductsPage({
                     </p>
                   )}
                   <p className="mt-1 text-sm text-gray-400">
-                    {resultsPending
-                      ? "Updating products…"
-                      : `${products.length} product${products.length !== 1 ? "s" : ""} found`}
+                    {products.length} product{products.length !== 1 ? "s" : ""} found
                   </p>
                 </div>
               </div>
@@ -435,9 +434,6 @@ export default function CategoryProductsPage({
                       </option>
                     ))}
                   </select>
-                  {resultsPending && (
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-[var(--color-primary)]" />
-                  )}
                 </div>
 
                 {/* Reset Button */}
@@ -498,25 +494,7 @@ export default function CategoryProductsPage({
         {/* Main Content */}
         <div className="mx-auto max-w-[1200px] px-4 py-6">
           {/* Products */}
-          {resultsPending ? (
-            <div
-              className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4"
-              role="status"
-              aria-label="Updating products"
-              aria-busy="true"
-            >
-              {Array.from({ length: 8 }, (_, index) => (
-                <div key={index} className="overflow-hidden rounded-xl border border-gray-100 bg-white p-2.5 shadow-sm">
-                  <div className="aspect-square animate-pulse rounded-lg bg-gray-100" />
-                  <div className="space-y-2 px-1 pb-1 pt-3">
-                    <div className="h-3 w-4/5 animate-pulse rounded bg-gray-100" />
-                    <div className="h-3 w-2/5 animate-pulse rounded bg-gray-100" />
-                    <div className="h-4 w-1/2 animate-pulse rounded bg-gray-100" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : products.length > 0 ? (
+          {products.length > 0 ? (
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
@@ -575,6 +553,7 @@ export default function CategoryProductsPage({
             </div>
           )}
         </div>
+        {resultsPending && <GlobalLoader fullScreen message="Updating products..." />}
       </div>
     </>
   );
