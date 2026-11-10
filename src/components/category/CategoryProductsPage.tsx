@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -45,7 +45,6 @@ export default function CategoryProductsPage({
   categoryImage,
 }: CategoryProductsPageProps) {
   const dispatch = useAppDispatch();
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   // Read initial values from URL params
@@ -221,11 +220,10 @@ export default function CategoryProductsPage({
         }
       });
       const qs = newParams.toString();
-      router.replace(`/category/${slug}${qs ? `?${qs}` : ""}`, {
-        scroll: false,
-      });
+      const nextUrl = `/category/${slug}${qs ? `?${qs}` : ""}`;
+      window.history.replaceState(null, "", nextUrl);
     },
-    [slug, router, queryString]
+    [slug, queryString]
   );
 
   // Handle sort change
@@ -233,6 +231,7 @@ export default function CategoryProductsPage({
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const newSort = e.target.value as CategorySortOption;
       setSortBy(newSort);
+      setLoading(true);
       updateUrlParams({ sort: newSort, page: "" });
     },
     [updateUrlParams]
@@ -241,19 +240,35 @@ export default function CategoryProductsPage({
   // Handle brand change
   const handleBrandChange = useCallback(
     (option: BrandOption | null) => {
+      if (selectedBrand?.id === option?.id) return;
       setSelectedBrand(option);
+      setLoading(true);
       updateUrlParams({
         brand_id: option ? String(option.id) : "",
         page: "",
       });
     },
-    [updateUrlParams]
+    [selectedBrand, updateUrlParams]
   );
 
   const { products = [], category } = data;
   const displayName = category?.name || categoryName;
   const displayDescription = category?.description || categoryDescription;
   const displayImage = category?.image || categoryImage;
+  const currentParams = new URLSearchParams(queryString);
+  const currentSortParam = currentParams.get("sort") as CategorySortOption | null;
+  const currentSort = currentSortParam && SORT_OPTIONS.some((option) => option.value === currentSortParam)
+    ? currentSortParam
+    : "latest";
+  const currentBrandId = Number(currentParams.get("brand_id")) || null;
+  const currentPage = Number(currentParams.get("page")) || 1;
+  const currentFilterKey = `${slug}:${currentSort}:${currentBrandId ?? ""}:${currentPage}`;
+  const hasInitialUrlFilters = currentSort !== "latest" || currentBrandId !== null || currentPage !== 1;
+  const resultsPending = loading || (
+    lastAppliedFilter.current === null
+      ? hasInitialUrlFilters
+      : lastAppliedFilter.current !== currentFilterKey
+  );
 
   // GTM: Track category view
   useEffect(() => {
@@ -347,7 +362,9 @@ export default function CategoryProductsPage({
                     </p>
                   )}
                   <p className="mt-1 text-sm text-gray-400">
-                    {products.length} product{products.length !== 1 ? "s" : ""} found
+                    {resultsPending
+                      ? "Updating products…"
+                      : `${products.length} product${products.length !== 1 ? "s" : ""} found`}
                   </p>
                 </div>
               </div>
@@ -374,7 +391,7 @@ export default function CategoryProductsPage({
                     onInputChange={(inputValue: string) => {
                       setBrandSearchInput(inputValue);
                       setBrandPage(1);
-          loadBrands({ search: inputValue || undefined, page: 1, append: false, categoryId });
+                      loadBrands({ search: inputValue || undefined, page: 1, append: false, categoryId });
                       return inputValue;
                     }}
                     filterOption={null}
@@ -418,7 +435,7 @@ export default function CategoryProductsPage({
                       </option>
                     ))}
                   </select>
-                  {loading && (
+                  {resultsPending && (
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-[var(--color-primary)]" />
                   )}
                 </div>
@@ -429,6 +446,7 @@ export default function CategoryProductsPage({
                     onClick={() => {
                       setSortBy("latest");
                       setSelectedBrand(null);
+                      setLoading(true);
                       updateUrlParams({ sort: "", brand_id: "", page: "" });
                     }}
                     className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200"
@@ -465,6 +483,7 @@ export default function CategoryProductsPage({
                 onClick={() => {
                   setSortBy("latest");
                   setSelectedBrand(null);
+                  setLoading(true);
                   updateUrlParams({ sort: "", brand_id: "", page: "" });
                 }}
                 className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200"
@@ -479,7 +498,25 @@ export default function CategoryProductsPage({
         {/* Main Content */}
         <div className="mx-auto max-w-[1200px] px-4 py-6">
           {/* Products */}
-          {products.length > 0 ? (
+          {resultsPending ? (
+            <div
+              className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4"
+              role="status"
+              aria-label="Updating products"
+              aria-busy="true"
+            >
+              {Array.from({ length: 8 }, (_, index) => (
+                <div key={index} className="overflow-hidden rounded-xl border border-gray-100 bg-white p-2.5 shadow-sm">
+                  <div className="aspect-square animate-pulse rounded-lg bg-gray-100" />
+                  <div className="space-y-2 px-1 pb-1 pt-3">
+                    <div className="h-3 w-4/5 animate-pulse rounded bg-gray-100" />
+                    <div className="h-3 w-2/5 animate-pulse rounded bg-gray-100" />
+                    <div className="h-4 w-1/2 animate-pulse rounded bg-gray-100" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : products.length > 0 ? (
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
