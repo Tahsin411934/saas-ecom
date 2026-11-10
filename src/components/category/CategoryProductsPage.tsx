@@ -50,7 +50,6 @@ export default function CategoryProductsPage({
 
   // Read initial values from URL params
   const sortFromUrl = searchParams.get("sort") as CategorySortOption | null;
-  const brandIdFromUrl = searchParams.get("brand_id");
 
   const [sortBy, setSortBy] = useState<CategorySortOption>(
     sortFromUrl && SORT_OPTIONS.some((o) => o.value === sortFromUrl)
@@ -76,6 +75,7 @@ export default function CategoryProductsPage({
   // Load brands for the dropdown (first 20)
   const loadBrands = useCallback(
     async (params: { search?: string; page?: number; append?: boolean; categoryId?: number }) => {
+      const currentRequestId = ++brandRequestId.current;
       setBrandLoading(true);
       try {
         const result = await brandsService.getAll({
@@ -85,12 +85,16 @@ export default function CategoryProductsPage({
           categoryId: params.categoryId,
         });
         const newBrands = result.data || [];
+        if (currentRequestId !== brandRequestId.current) return [];
         setBrandTotal(result.meta?.total || 0);
         setBrandHasMore(
           (result.meta?.current_page || 1) < (result.meta?.last_page || 1)
         );
         if (params.append) {
-          setBrands((prev) => [...prev, ...newBrands]);
+          setBrands((prev) => {
+            const existingIds = new Set(prev.map((brand) => brand.id));
+            return [...prev, ...newBrands.filter((brand) => !existingIds.has(brand.id))];
+          });
         } else {
           setBrands(newBrands);
         }
@@ -98,7 +102,7 @@ export default function CategoryProductsPage({
       } catch {
         return [];
       } finally {
-        setBrandLoading(false);
+        if (currentRequestId === brandRequestId.current) setBrandLoading(false);
       }
     },
     []
@@ -106,27 +110,13 @@ export default function CategoryProductsPage({
 
   // Load only brands assigned to this category.
   useEffect(() => {
-    let cancelled = false;
-    const currentBrandRequestId = ++brandRequestId.current;
     setBrands([]);
     setSelectedBrand(null);
     setBrandSearchInput("");
     setBrandPage(1);
     setBrandTotal(0);
     setBrandHasMore(false);
-    loadBrands({ page: 1, categoryId }).then((newBrands) => {
-      if (cancelled || currentBrandRequestId !== brandRequestId.current) return;
-      // If brand_id is in URL, find and set the brand
-      if (brandIdFromUrl) {
-        const found = newBrands.find(
-          (b: BrandOption) => b.id === parseInt(brandIdFromUrl)
-        );
-        if (found) setSelectedBrand(found);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
+    void loadBrands({ page: 1, categoryId });
   }, [categoryId, loadBrands]);
 
   useEffect(() => {
@@ -244,13 +234,8 @@ export default function CategoryProductsPage({
       const newSort = e.target.value as CategorySortOption;
       setSortBy(newSort);
       updateUrlParams({ sort: newSort, page: "" });
-      fetchProducts({
-        sort: newSort,
-        brand_id: selectedBrand?.id,
-        page: 1,
-      });
     },
-    [selectedBrand, updateUrlParams, fetchProducts]
+    [updateUrlParams]
   );
 
   // Handle brand change
@@ -261,13 +246,8 @@ export default function CategoryProductsPage({
         brand_id: option ? String(option.id) : "",
         page: "",
       });
-      fetchProducts({
-        sort: sortBy,
-        brand_id: option?.id,
-        page: 1,
-      });
     },
-    [sortBy, updateUrlParams, fetchProducts]
+    [updateUrlParams]
   );
 
   const { products = [], category } = data;
@@ -450,7 +430,6 @@ export default function CategoryProductsPage({
                       setSortBy("latest");
                       setSelectedBrand(null);
                       updateUrlParams({ sort: "", brand_id: "", page: "" });
-                      fetchProducts({ sort: "latest", brand_id: null, page: 1 });
                     }}
                     className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200"
                   >
@@ -487,7 +466,6 @@ export default function CategoryProductsPage({
                   setSortBy("latest");
                   setSelectedBrand(null);
                   updateUrlParams({ sort: "", brand_id: "", page: "" });
-                  fetchProducts({ sort: "latest", brand_id: null, page: 1 });
                 }}
                 className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200"
               >
