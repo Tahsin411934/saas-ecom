@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -68,6 +68,10 @@ export default function CategoryProductsPage({
   const [brandTotal, setBrandTotal] = useState(0);
   const [brandHasMore, setBrandHasMore] = useState(false);
   const categoryId = initialData.category?.id;
+  const requestId = useRef(0);
+  const brandRequestId = useRef(0);
+  const lastAppliedFilter = useRef<string | null>(null);
+  const queryString = searchParams.toString();
 
   // Load brands for the dropdown (first 20)
   const loadBrands = useCallback(
@@ -102,10 +106,16 @@ export default function CategoryProductsPage({
 
   // Load only brands assigned to this category.
   useEffect(() => {
+    let cancelled = false;
+    const currentBrandRequestId = ++brandRequestId.current;
+    setBrands([]);
     setSelectedBrand(null);
     setBrandSearchInput("");
     setBrandPage(1);
+    setBrandTotal(0);
+    setBrandHasMore(false);
     loadBrands({ page: 1, categoryId }).then((newBrands) => {
+      if (cancelled || currentBrandRequestId !== brandRequestId.current) return;
       // If brand_id is in URL, find and set the brand
       if (brandIdFromUrl) {
         const found = newBrands.find(
@@ -114,11 +124,38 @@ export default function CategoryProductsPage({
         if (found) setSelectedBrand(found);
       }
     });
-  }, [categoryId, loadBrands]); // eslint-disable-line react-hooks/exhaustive-deps
+    return () => {
+      cancelled = true;
+    };
+  }, [categoryId, loadBrands]);
 
   useEffect(() => {
     setData(initialData);
-  }, [initialData]);
+  }, [initialData, slug]);
+
+  // Keep controls aligned with URL changes, including browser back/forward.
+  useEffect(() => {
+    const params = new URLSearchParams(queryString);
+    const sort = params.get("sort") as CategorySortOption | null;
+    const brandId = params.get("brand_id");
+
+    setSortBy(sort && SORT_OPTIONS.some((option) => option.value === sort) ? sort : "latest");
+    if (!brandId) {
+      setSelectedBrand(null);
+      return;
+    }
+
+    const matchingBrand = brands.find((brand) => brand.id === Number(brandId));
+    if (matchingBrand) setSelectedBrand(matchingBrand);
+    else if (brands.length > 0 && !brandLoading) setSelectedBrand(null);
+  }, [queryString, brands, brandLoading]);
+
+  useEffect(() => {
+    return () => {
+      requestId.current += 1;
+      brandRequestId.current += 1;
+    };
+  }, [slug]);
 
   useEffect(() => {
     dispatch(fetchWishlistItems());
@@ -131,9 +168,16 @@ export default function CategoryProductsPage({
       brand_id?: number | null;
       page?: number;
     }) => {
+      const currentRequestId = ++requestId.current;
       setLoading(true);
 
-      const queryParams: any = { per_page: 24, refresh: 1 };
+      const queryParams: {
+        per_page: number;
+        refresh: number;
+        sort?: CategorySortOption;
+        brand_id?: number;
+        page?: number;
+      } = { per_page: 24, refresh: 1 };
       if (params.sort) queryParams.sort = params.sort;
       if (params.brand_id) queryParams.brand_id = params.brand_id;
       if (params.page) queryParams.page = params.page;
@@ -141,20 +185,44 @@ export default function CategoryProductsPage({
       categoryProductsService
         .getBySlug(slug, queryParams)
         .then((result) => {
-          setData(result);
-          setLoading(false);
+          if (currentRequestId === requestId.current) {
+            setData(result);
+            setLoading(false);
+          }
         })
         .catch(() => {
-          setLoading(false);
+          if (currentRequestId === requestId.current) setLoading(false);
         });
     },
     [slug]
   );
 
+  // Apply URL filters on direct loads and browser back/forward navigation.
+  useEffect(() => {
+    const params = new URLSearchParams(queryString);
+    const requestedSort = params.get("sort") as CategorySortOption | null;
+    const sort = requestedSort && SORT_OPTIONS.some((option) => option.value === requestedSort)
+      ? requestedSort
+      : "latest";
+    const brandId = Number(params.get("brand_id")) || null;
+    const page = Number(params.get("page")) || 1;
+    const filterKey = `${slug}:${sort}:${brandId ?? ""}:${page}`;
+    if (lastAppliedFilter.current === null) {
+      lastAppliedFilter.current = filterKey;
+      const hasUrlFilters = sort !== "latest" || brandId !== null || page !== 1;
+      if (!hasUrlFilters) return;
+    } else if (lastAppliedFilter.current === filterKey) {
+      return;
+    }
+
+    lastAppliedFilter.current = filterKey;
+    fetchProducts({ sort, brand_id: brandId, page });
+  }, [queryString, slug, fetchProducts]);
+
   // Update URL params
   const updateUrlParams = useCallback(
     (params: { sort?: string; brand_id?: string; page?: string }) => {
-      const newParams = new URLSearchParams(searchParams.toString());
+      const newParams = new URLSearchParams(queryString);
       Object.entries(params).forEach(([key, value]) => {
         if (value) {
           newParams.set(key, value);
@@ -167,7 +235,7 @@ export default function CategoryProductsPage({
         scroll: false,
       });
     },
-    [slug, router, searchParams]
+    [slug, router, queryString]
   );
 
   // Handle sort change
