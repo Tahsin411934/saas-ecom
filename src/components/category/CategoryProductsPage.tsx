@@ -67,16 +67,18 @@ export default function CategoryProductsPage({
   const [brandPage, setBrandPage] = useState(1);
   const [brandTotal, setBrandTotal] = useState(0);
   const [brandHasMore, setBrandHasMore] = useState(false);
+  const categoryId = initialData.category?.id;
 
   // Load brands for the dropdown (first 20)
   const loadBrands = useCallback(
-    async (params: { search?: string; page?: number; append?: boolean }) => {
+    async (params: { search?: string; page?: number; append?: boolean; categoryId?: number }) => {
       setBrandLoading(true);
       try {
         const result = await brandsService.getAll({
           search: params.search,
           page: params.page || 1,
           limit: 20,
+          categoryId: params.categoryId,
         });
         const newBrands = result.data || [];
         setBrandTotal(result.meta?.total || 0);
@@ -98,9 +100,12 @@ export default function CategoryProductsPage({
     []
   );
 
-  // Initial load
+  // Load only brands assigned to this category.
   useEffect(() => {
-    loadBrands({ page: 1 }).then((newBrands) => {
+    setSelectedBrand(null);
+    setBrandSearchInput("");
+    setBrandPage(1);
+    loadBrands({ page: 1, categoryId }).then((newBrands) => {
       // If brand_id is in URL, find and set the brand
       if (brandIdFromUrl) {
         const found = newBrands.find(
@@ -109,7 +114,11 @@ export default function CategoryProductsPage({
         if (found) setSelectedBrand(found);
       }
     });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [categoryId, loadBrands]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    setData(initialData);
+  }, [initialData]);
 
   useEffect(() => {
     dispatch(fetchWishlistItems());
@@ -317,7 +326,7 @@ export default function CategoryProductsPage({
                     onInputChange={(inputValue: string) => {
                       setBrandSearchInput(inputValue);
                       setBrandPage(1);
-                      loadBrands({ search: inputValue || undefined, page: 1, append: false });
+          loadBrands({ search: inputValue || undefined, page: 1, append: false, categoryId });
                       return inputValue;
                     }}
                     filterOption={null}
@@ -327,7 +336,7 @@ export default function CategoryProductsPage({
                       if (brandHasMore && !brandLoading) {
                         const nextPage = brandPage + 1;
                         setBrandPage(nextPage);
-                        loadBrands({ search: brandSearchInput || undefined, page: nextPage, append: true });
+                        loadBrands({ search: brandSearchInput || undefined, page: nextPage, append: true, categoryId });
                       }
                     }}
                     classNamePrefix="category-select"
