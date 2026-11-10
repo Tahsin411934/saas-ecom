@@ -492,7 +492,7 @@ export default function CategoryProductsPage({
         )}
 
         {/* Main Content */}
-        <div className="mx-auto max-w-[1200px] px-4 py-6">
+        <div className="relative mx-auto min-h-[420px] max-w-[1200px] px-4 py-6" aria-busy={resultsPending}>
           {/* Products */}
           {products.length > 0 ? (
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
@@ -552,8 +552,12 @@ export default function CategoryProductsPage({
               </nav>
             </div>
           )}
+          {resultsPending && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/95 backdrop-blur-sm" role="status" aria-live="polite">
+              <GlobalLoader className="h-full min-h-[420px]" message="Loading products..." />
+            </div>
+          )}
         </div>
-        {resultsPending && <GlobalLoader fullScreen message="Updating products..." />}
       </div>
     </>
   );
