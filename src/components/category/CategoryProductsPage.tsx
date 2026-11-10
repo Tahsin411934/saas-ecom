@@ -163,11 +163,11 @@ export default function CategoryProductsPage({
 
       const queryParams: {
         per_page: number;
-        refresh: number;
+        refresh: boolean;
         sort?: CategorySortOption;
         brand_id?: number;
         page?: number;
-      } = { per_page: 24, refresh: 1 };
+      } = { per_page: 24, refresh: true };
       if (params.sort) queryParams.sort = params.sort;
       if (params.brand_id) queryParams.brand_id = params.brand_id;
       if (params.page) queryParams.page = params.page;
