@@ -3,6 +3,13 @@ import CategoryScrollServer from "@/components/home/CategoryScrollServer";
 import HomePageServer from "@/components/home/HomePageServer";
 import CampaignSection from "@/components/home/CampaignSection";
 import { campaignService } from "@/services/campaign.service";
+import {
+  CampaignFallback,
+  CategoryFallback,
+  HeroFallback,
+  ProductsFallback,
+} from "@/components/home/HomeSectionFallbacks";
+import { Suspense } from "react";
 import type { Metadata } from "next";
 
 // Homepage freshness is controlled centrally in src/config/revalidate.ts
@@ -42,8 +49,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function Home() {
+async function ActiveCampaignSection() {
   const campaigns = await campaignService.getActive().catch(() => []);
+  return <CampaignSection campaigns={campaigns} />;
+}
+
+export default function Home() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -87,10 +98,18 @@ export default async function Home() {
         }}
       />
       <div className="flex flex-col">
-        <HeroBannerServer />
-        <CategoryScrollServer />
-        <CampaignSection campaigns={campaigns} />
-        <HomePageServer />
+        <Suspense fallback={<HeroFallback />}>
+          <HeroBannerServer />
+        </Suspense>
+        <Suspense fallback={<CategoryFallback />}>
+          <CategoryScrollServer />
+        </Suspense>
+        <Suspense fallback={<CampaignFallback />}>
+          <ActiveCampaignSection />
+        </Suspense>
+        <Suspense fallback={<ProductsFallback />}>
+          <HomePageServer />
+        </Suspense>
       </div>
     </>
   );

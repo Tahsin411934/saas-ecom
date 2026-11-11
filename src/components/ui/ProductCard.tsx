@@ -3,12 +3,9 @@
 import { type MouseEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Heart, ShoppingCart, Star } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { toggleWishlistItem, selectIsInWishlist } from "@/lib/features/wishlist/wishlistSlice";
-import { requireAuth } from "@/lib/require-auth";
-import QuickAddModal from "@/components/cart/QuickAddModal";
-import { trackSelectItem, trackAddToWishlist, trackRemoveFromWishlist } from "@/lib/gtm";
+import { ShoppingCart, Star } from "lucide-react";
+import ProductCardActions from "./ProductCardActions";
+import { trackSelectItem } from "@/lib/gtm";
 
 // Generic product shape that all product types must conform to
 export interface ProductCardItem {
@@ -39,9 +36,6 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, viewMode = "grid" }: ProductCardProps) {
-  const dispatch = useAppDispatch();
-  const wishlisted = useAppSelector(selectIsInWishlist(product.id));
-  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const displayPrice = product.price;
   const inStock = product.stock_status !== "out_of_stock";
 
@@ -63,45 +57,7 @@ export default function ProductCard({ product, viewMode = "grid" }: ProductCardP
   const regularPrice =
     hasDiscount && product.regular_price != null ? product.regular_price : null;
 
-  const handleToggleWishlist = (event: MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (!requireAuth(isAuthenticated)) return;
-
-    dispatch(
-      toggleWishlistItem({
-        productId: product.id,
-        isWishlisted: wishlisted,
-        item: {
-          id: product.id,
-          name: product.name,
-          slug: product.slug,
-          image: product.main_image,
-          price: product.price ?? 0,
-        },
-      })
-    );
-
-    // Keep wishlist analytics consistent wherever the shared card is rendered.
-    if (!wishlisted) {
-      trackAddToWishlist({
-        productId: product.id,
-        productName: product.name,
-        price: product.price ?? 0,
-        imageUrl: product.main_image || undefined,
-      });
-    } else {
-      trackRemoveFromWishlist({
-        productId: product.id,
-        productName: product.name,
-        price: product.price ?? 0,
-      });
-    }
-  };
-
-  const handleProductClick = () => {
-    // GTM: Track product click
+  const handleProductClick = (_event: MouseEvent<HTMLAnchorElement>) => {
     trackSelectItem({
       productId: product.id,
       productName: product.name,
@@ -174,17 +130,7 @@ export default function ProductCard({ product, viewMode = "grid" }: ProductCardP
               )}
             </div>
             <div className="mt-2 w-full md:w-auto">
-              <QuickAddModal
-                product={{
-                  id: product.id,
-                  name: product.name,
-                  slug: product.slug,
-                  main_image: product.main_image,
-                  price: product.price ?? 0,
-                }}
-                triggerLabel="Add to Cart"
-                disabled={!inStock}
-              />
+              <ProductCardActions product={product} viewMode="list" disabled={!inStock} showQuickAdd />
             </div>
           </div>
         </div>
@@ -205,11 +151,7 @@ export default function ProductCard({ product, viewMode = "grid" }: ProductCardP
             <div className="flex h-full items-center justify-center text-gray-300" aria-hidden="true"><ShoppingCart className="h-10 w-10" /></div>
           )}
         </Link>
-        <button type="button" onClick={handleToggleWishlist} aria-pressed={wishlisted}
-          aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-          className="absolute right-1 top-1 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 shadow-sm transition-colors hover:bg-rose-50 focus-visible:outline-2 focus-visible:outline-emerald-600">
-          <Heart className={`h-4 w-4 ${wishlisted ? "fill-red-500 text-red-500" : "text-gray-600"}`} />
-        </button>
+        <ProductCardActions product={product} viewMode="grid" disabled={!inStock} />
         {discountPercent > 0 && (
           <span className="pointer-events-none absolute left-1 top-1 z-10 rounded bg-rose-500 px-1.5 py-0.5 text-[10px] font-bold text-white">-{discountPercent}%</span>
         )}
@@ -233,9 +175,7 @@ export default function ProductCard({ product, viewMode = "grid" }: ProductCardP
         </div>
         {!inStock && <span className="mt-1 inline-block text-xs font-medium text-red-500">Out of Stock</span>}
         <div className="mt-auto pt-1">
-          <QuickAddModal product={{id: product.id, name: product.name, slug: product.slug, main_image: product.main_image, price: product.price ?? 0}}
-            triggerLabel="Add to Cart" disabled={!inStock}
-            triggerClassName="h-8 w-full rounded-md bg-gradient-to-r from-emerald-600 to-teal-500 px-2 text-[11px] font-semibold text-white shadow-none transition-colors hover:from-emerald-700 hover:to-teal-600" />
+          <ProductCardActions product={product} viewMode="grid" disabled={!inStock} showQuickAdd />
         </div>
       </div>
     </article>

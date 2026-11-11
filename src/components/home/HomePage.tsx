@@ -1,5 +1,3 @@
-"use client";
-
 import CategorySection from "./CategorySection";
 import CtaSection from "./CtaSection";
 import { type HomeSection } from "@/services/home.service";
