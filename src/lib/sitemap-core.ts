@@ -148,6 +148,8 @@ export async function staticPages(): Promise<SitemapEntry[]> {
     page("/", { changeFrequency: "daily", priority: 1.0 }),
     page("/categories", { changeFrequency: "weekly", priority: 0.9 }),
     page("/product-request", { changeFrequency: "monthly", priority: 0.5 }),
+    ...["help", "order-status", "shipping-info", "returns", "contact", "about", "careers", "terms", "privacy", "blog"]
+      .map((path) => page(`/${path}`, { changeFrequency: "monthly", priority: 0.4 })),
   ];
 
   const categoryPages = categories.map((cat) =>
