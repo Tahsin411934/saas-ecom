@@ -3,8 +3,9 @@ import Image from "next/image";
 import { buildApiUrl } from "@/lib/api-url";
 import { rewriteLegacyAssetHosts } from "@/lib/asset-url";
 import { REVALIDATE } from "@/config/revalidate";
-import type { Campaign, CampaignProduct } from "@/services/campaign.service";
-import QuickAddCardButton from "@/components/cart/QuickAddCardButton";
+import type { Campaign } from "@/services/campaign.service";
+import ProductCard from "@/components/ui/ProductCard";
+import { toCampaignProductCard } from "@/lib/campaign-product-card";
 import type { Metadata } from "next";
 
 // Freshness is centrally controlled via fetch-level revalidate
@@ -53,27 +54,6 @@ export async function generateMetadata({
       },
     };
   }
-}
-
-function displayPrice(p: CampaignProduct): number {
-  const final = typeof p.price === "number" && isFinite(p.price) && p.price > 0 ? p.price : null;
-  const regular = p.regular_price ?? p.original_price;
-  return final ?? (typeof regular === "number" && isFinite(regular) ? regular : 0);
-}
-
-function discountOf(p: CampaignProduct): number {
-  const final = p.price;
-  const regular = p.regular_price ?? p.original_price;
-  if (
-    p.has_discount !== false &&
-    typeof final === "number" &&
-    final > 0 &&
-    typeof regular === "number" &&
-    regular > final
-  ) {
-    return p.discount_percent ?? Math.round(((regular - final) / regular) * 100);
-  }
-  return 0;
 }
 
 export default async function CampaignPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -145,59 +125,11 @@ export default async function CampaignPage({ params }: { params: Promise<{ slug:
       </div>
 
       <div className="products-carousel">
-        {campaign.products.map((product) => {
-          const price = displayPrice(product);
-          const off = discountOf(product);
-          const regular = product.regular_price ?? product.original_price;
-          const showRegular = typeof regular === "number" && regular > price;
-
-          return (
-            <div key={product.id} className="product-card-item">
-              <Link
-                href={`/product/${product.slug}`}
-                className="block overflow-hidden rounded-xl border bg-white p-3 hover:shadow-md"
-              >
-                <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
-                  {product.main_image && (
-                    <Image
-                      src={product.main_image}
-                      alt={product.name}
-                      fill
-                      sizes="(max-width: 767px) 42vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, 225px"
-                      className="h-full w-full object-cover"
-                    />
-                  )}
-                  {off > 0 && (
-                    <span className="absolute left-2 top-2 rounded bg-red-500 px-1.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
-                      -{off}%
-                    </span>
-                  )}
-                </div>
-                <h2 className="mt-3 line-clamp-1 font-semibold text-gray-900">{product.name}</h2>
-                <div className="mt-1 flex items-center gap-2">
-                  <span className="font-bold text-orange-600">
-                    ৳{price.toLocaleString("en-BD")}
-                  </span>
-                  {showRegular && (
-                    <span className="text-xs text-gray-400 line-through">
-                      ৳{regular.toLocaleString("en-BD")}
-                    </span>
-                  )}
-                </div>
-                <QuickAddCardButton
-                  product={{
-                    id: product.id,
-                    name: product.name,
-                    slug: product.slug,
-                    main_image: product.main_image ?? null,
-                    price,
-                  }}
-                  className="mt-2"
-                />
-              </Link>
-            </div>
-          );
-        })}
+        {campaign.products.map((product) => (
+          <div key={product.id} className="product-card-item">
+            <ProductCard product={toCampaignProductCard(product)} />
+          </div>
+        ))}
       </div>
     </main>
   );

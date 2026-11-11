@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import ProductCard from "@/components/ui/ProductCard";
 import {
   ShoppingCart,
   Heart,
@@ -15,7 +15,6 @@ import {
   Truck,
   ShieldCheck,
   RotateCcw,
-  Package,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -793,52 +792,7 @@ export default function ProductDetailClient({
               <div className="products-carousel">
                 {product.related_products.map((rp) => (
                   <div key={rp.id} className="product-card-item">
-                    <Link
-                      href={`/product/${rp.slug}`}
-                      className="group block bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all"
-                    >
-                      <div className="aspect-square bg-gray-50 relative overflow-hidden">
-                        {rp.main_image ? (
-                          <Image
-                            src={rp.main_image}
-                            alt={rp.name}
-                            fill
-                            sizes="(max-width: 768px) 50vw, 25vw"
-                            className="object-contain p-3 group-hover:scale-105 transition-transform duration-300"
-                          />
-                        ) : (
-                          <div className="flex h-full items-center justify-center text-gray-300">
-                            <Package className="h-10 w-10" />
-                          </div>
-                        )}
-                        {rp.has_discount === true &&
-                          rp.regular_price != null &&
-                          rp.price != null &&
-                          rp.regular_price > rp.price && (
-                            <span className="absolute top-2 left-2 rounded bg-red-500 px-1.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
-                              -{rp.discount_percent ??
-                                Math.round(((rp.regular_price - rp.price) / rp.regular_price) * 100)}%
-                            </span>
-                          )}
-                      </div>
-                      <div className="p-3">
-                        <h3 className="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-[var(--color-primary)] transition-colors">
-                          {rp.name}
-                        </h3>
-                        <p className="mt-1 flex flex-wrap items-center gap-2">
-                          <span className="text-base font-bold text-[var(--color-primary)]">
-                            ৳{(rp.price ?? 0).toLocaleString("en-BD")}
-                          </span>
-                          {rp.regular_price != null &&
-                            rp.price != null &&
-                            rp.regular_price > rp.price && (
-                              <span className="text-xs text-gray-400 line-through">
-                                ৳{rp.regular_price.toLocaleString("en-BD")}
-                              </span>
-                            )}
-                        </p>
-                      </div>
-                    </Link>
+                    <ProductCard product={rp} />
                   </div>
                 ))}
               </div>

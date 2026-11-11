@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import type { Campaign, CampaignProduct } from "@/services/campaign.service";
-import QuickAddCardButton from "@/components/cart/QuickAddCardButton";
+import type { Campaign } from "@/services/campaign.service";
+import ProductCard from "@/components/ui/ProductCard";
+import { toCampaignProductCard } from "@/lib/campaign-product-card";
 import {
   Carousel,
   CarouselContent,
@@ -11,29 +12,6 @@ import {
   CarouselDots,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-
-/** Never show a broken "৳0" price — if the computed (discounted) price is invalid
- *  fall back to the regular price. */
-function displayPrice(p: CampaignProduct): number {
-  const final = typeof p.price === "number" && isFinite(p.price) && p.price > 0 ? p.price : null;
-  const regular = p.regular_price ?? p.original_price;
-  return final ?? (typeof regular === "number" && isFinite(regular) ? regular : 0);
-}
-
-function discountOf(p: CampaignProduct): number {
-  const final = p.price;
-  const regular = p.regular_price ?? p.original_price;
-  if (
-    p.has_discount !== false &&
-    typeof final === "number" &&
-    final > 0 &&
-    typeof regular === "number" &&
-    regular > final
-  ) {
-    return p.discount_percent ?? Math.round(((regular - final) / regular) * 100);
-  }
-  return 0;
-}
 
 export default function CampaignSection({ campaigns }: { campaigns: Campaign[] }) {
   if (!campaigns.length) return null;
@@ -98,64 +76,14 @@ export default function CampaignSection({ campaigns }: { campaigns: Campaign[] }
                 className="relative"
               >
                 <CarouselContent>
-                  {campaign.products.map((product) => {
-                    const price = displayPrice(product);
-                    const off = discountOf(product);
-                    const regular = product.regular_price ?? product.original_price;
-                    const showRegular = typeof regular === "number" && regular > price;
-
-                    return (
-                      <CarouselItem
-                        key={product.id}
-                        className="min-w-0 basis-[43.5%] lg:basis-[18.9%]"
-                      >
-                        <Link
-                          href={`/product/${product.slug}`}
-                          className="block h-full rounded-xl bg-white p-3 shadow-sm hover:shadow-md"
-                        >
-                          <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
-                            {product.main_image && (
-                              <Image
-                                src={product.main_image}
-                                alt={product.name}
-                                fill
-                                sizes="(max-width: 1023px) 44vw, 230px"
-                                className="h-full w-full object-cover"
-                              />
-                            )}
-                            {off > 0 && (
-                              <span className="absolute left-2 top-2 rounded bg-red-500 px-1.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
-                                -{off}%
-                              </span>
-                            )}
-                          </div>
-                          <p className="mt-2 line-clamp-1 text-sm font-medium text-gray-900">
-                            {product.name}
-                          </p>
-                          <p className="mt-1 flex items-center gap-2">
-                            <span className="text-sm font-bold text-orange-600">
-                              ৳{price.toLocaleString("en-BD")}
-                            </span>
-                            {showRegular && (
-                              <span className="text-xs text-gray-400 line-through">
-                                ৳{regular.toLocaleString("en-BD")}
-                              </span>
-                            )}
-                          </p>
-                          <QuickAddCardButton
-                            product={{
-                              id: product.id,
-                              name: product.name,
-                              slug: product.slug,
-                              main_image: product.main_image ?? null,
-                              price,
-                            }}
-                            className="mt-2"
-                          />
-                        </Link>
-                      </CarouselItem>
-                    );
-                  })}
+                  {campaign.products.map((product) => (
+                    <CarouselItem
+                      key={product.id}
+                      className="min-w-0 basis-[43.5%] lg:basis-[18.9%]"
+                    >
+                      <ProductCard product={toCampaignProductCard(product)} />
+                    </CarouselItem>
+                  ))}
                 </CarouselContent>
                 <CarouselDots className="mt-4" />
               </Carousel>

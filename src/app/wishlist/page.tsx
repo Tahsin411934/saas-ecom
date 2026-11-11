@@ -1,16 +1,14 @@
 "use client";
 
-import Image from "next/image";
+import ProductCard from "@/components/ui/ProductCard";
 import Link from "next/link";
-import { ArrowLeft, Heart, ShoppingCart, X } from "lucide-react";
+import { ArrowLeft, Heart } from "lucide-react";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import {
   fetchWishlistItems,
-  removeWishlistItem,
   selectWishlistItems,
 } from "@/lib/features/wishlist/wishlistSlice";
-import { trackRemoveFromWishlist } from "@/lib/gtm";
 
 export default function WishlistPage() {
   const dispatch = useAppDispatch();
@@ -78,56 +76,13 @@ export default function WishlistPage() {
           <div className="products-carousel">
             {items.map((item) => (
               <div key={item.id} className="product-card-item">
-                <article className="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md">
-                  <div className="relative aspect-square overflow-hidden bg-gray-100">
-                    <Link href={`/product/${item.slug}`} className="block h-full" aria-label={`View ${item.name}`}>
-                      {item.image ? (
-                        <Image
-                          src={item.image}
-                          alt={item.name}
-                          fill
-                          sizes="(max-width: 639px) 50vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, 20vw"
-                          className="object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-gray-400">
-                          <ShoppingCart className="h-10 w-10" />
-                        </div>
-                      )}
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        dispatch(removeWishlistItem(item.id));
-                        // GTM: Track remove from wishlist
-                        trackRemoveFromWishlist({
-                          productId: item.id,
-                          productName: item.name,
-                          price: item.price,
-                        });
-                      }}
-                      className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-red-500 shadow-sm transition-colors hover:bg-red-50"
-                      aria-label={`Remove ${item.name} from wishlist`}
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <div className="p-3">
-                    <Link
-                      href={`/product/${item.slug}`}
-                      className="block truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-[var(--color-primary)]"
-                    >
-                      {item.name}
-                    </Link>
-                    <p className="mt-1 text-base font-bold text-gray-900">৳{item.price.toLocaleString("en-BD")}</p>
-                    <Link
-                      href={`/product/${item.slug}`}
-                      className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-[var(--color-primary)] px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-[var(--color-primary-dark)]"
-                    >
-                      View product
-                    </Link>
-                  </div>
-                </article>
+                <ProductCard product={{
+                  id: item.id,
+                  name: item.name,
+                  slug: item.slug,
+                  main_image: item.image,
+                  price: item.price,
+                }} />
               </div>
             ))}
           </div>

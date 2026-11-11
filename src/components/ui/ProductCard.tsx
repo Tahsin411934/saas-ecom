@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { toggleWishlistItem, selectIsInWishlist } from "@/lib/features/wishlist/wishlistSlice";
 import { requireAuth } from "@/lib/require-auth";
 import QuickAddModal from "@/components/cart/QuickAddModal";
-import { trackSelectItem, trackAddToWishlist } from "@/lib/gtm";
+import { trackSelectItem, trackAddToWishlist, trackRemoveFromWishlist } from "@/lib/gtm";
 
 // Generic product shape that all product types must conform to
 export interface ProductCardItem {
@@ -83,13 +83,19 @@ export default function ProductCard({ product, viewMode = "grid" }: ProductCardP
       })
     );
 
-    // GTM: Track wishlist add
+    // Keep wishlist analytics consistent wherever the shared card is rendered.
     if (!wishlisted) {
       trackAddToWishlist({
         productId: product.id,
         productName: product.name,
         price: product.price ?? 0,
         imageUrl: product.main_image || undefined,
+      });
+    } else {
+      trackRemoveFromWishlist({
+        productId: product.id,
+        productName: product.name,
+        price: product.price ?? 0,
       });
     }
   };
