@@ -220,6 +220,7 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [lightboxImageLoaded, setLightboxImageLoaded] = useState(false);
 
   const closeLightbox = useCallback(() => setIsLightboxOpen(false), []);
   const showPreviousImage = useCallback(() => {
@@ -228,17 +229,6 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
   const showNextImage = useCallback(() => {
     setActiveIndex((index) => (index + 1) % images.length);
   }, [images.length]);
-
-  useEffect(() => {
-    if (!images?.length) return;
-
-    // Warm the browser cache for the gallery images so selecting a thumbnail
-    // does not have to wait for the large main-image request to start.
-    images.slice(0, 5).forEach(({ url }) => {
-      const image = new window.Image();
-      image.src = url;
-    });
-  }, [images]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 200);
@@ -264,6 +254,10 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
     };
   }, [closeLightbox, isLightboxOpen, showNextImage, showPreviousImage]);
 
+  useEffect(() => {
+    setLightboxImageLoaded(false);
+  }, [activeIndex, isLightboxOpen]);
+
   if (isLoading) {
     return <GallerySkeleton />;
   }
@@ -273,6 +267,7 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
   }
 
   const current = images[activeIndex];
+  const mainImageSizes = "(max-width: 767px) calc(100vw - 64px), (max-width: 1023px) 60vw, (max-width: 1280px) 45vw, 550px";
 
   return (
     <div
@@ -311,6 +306,22 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
         />
       </div>
 
+      {/* Preload optimized main-image variants for the immediately selectable thumbnails. */}
+      <div className="pointer-events-none fixed left-[-10000px] top-0 h-px w-px overflow-hidden" aria-hidden="true">
+        {images.slice(0, 5).map((image, index) => (
+          <Image
+            key={`preload-${image.id}`}
+            src={image.url}
+            alt=""
+            width={1}
+            height={1}
+            sizes={mainImageSizes}
+            loading="eager"
+            fetchPriority={index === 0 ? "high" : "low"}
+          />
+        ))}
+      </div>
+
       <div
         className="lg:hidden flex gap-3 overflow-x-auto pb-2"
         role="tablist"
@@ -335,57 +346,90 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
 
       {isLightboxOpen && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 sm:p-8"
+          className="fixed inset-0 z-[100] flex flex-col bg-[#090a0c] text-white"
           role="dialog"
           aria-modal="true"
           aria-label="Product image preview"
-          onMouseDown={(event) => {
+          onClick={(event) => {
             if (event.target === event.currentTarget) closeLightbox();
           }}
         >
-          <button
-            type="button"
-            onClick={closeLightbox}
-            className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-            aria-label="Close image preview"
-          >
-            <X className="h-6 w-6" />
-          </button>
+          <header className="relative z-10 flex h-16 shrink-0 items-center justify-between border-b border-white/10 px-4 sm:px-8">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 text-xs font-semibold tracking-wide">IMG</span>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium">Product gallery</p>
+                <p className="text-xs text-white/50">{activeIndex + 1} of {images.length}</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={closeLightbox}
+              className="flex h-10 w-10 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              aria-label="Close image preview"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </header>
 
-          <div className="absolute left-4 top-5 text-sm font-medium text-white/80 sm:left-8">
-            {activeIndex + 1} / {images.length}
+          <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden px-14 py-4 sm:px-24 sm:py-8" onClick={(event) => event.stopPropagation()}>
+            {!lightboxImageLoaded && <div className="absolute h-10 w-10 animate-spin rounded-full border-2 border-white/20 border-t-white/80" aria-label="Loading image" />}
+
+            {images.length > 1 && (
+              <button
+                type="button"
+                onClick={showPreviousImage}
+                className="absolute left-2 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white shadow-lg backdrop-blur transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:left-6 sm:h-12 sm:w-12"
+                aria-label="Previous image"
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </button>
+            )}
+
+            <div className={`relative h-full max-h-[78vh] w-full max-w-6xl transition-opacity duration-200 ${lightboxImageLoaded ? "opacity-100" : "opacity-0"}`}>
+              <Image
+                key={current.id}
+                src={current.url}
+                alt={current.alt_text || `Product image ${activeIndex + 1}`}
+                fill
+                sizes="100vw"
+                className="object-contain"
+                priority
+                onLoad={() => setLightboxImageLoaded(true)}
+                draggable={false}
+              />
+            </div>
+
+            {images.length > 1 && (
+              <button
+                type="button"
+                onClick={showNextImage}
+                className="absolute right-2 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white shadow-lg backdrop-blur transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:right-6 sm:h-12 sm:w-12"
+                aria-label="Next image"
+              >
+                <ChevronRight className="h-6 w-6" />
+              </button>
+            )}
           </div>
 
-          <button
-            type="button"
-            onClick={showPreviousImage}
-            className="absolute left-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:left-8 sm:h-14 sm:w-14"
-            aria-label="Previous image"
-          >
-            <ChevronLeft className="h-7 w-7" />
-          </button>
-
-          <div className="relative h-full max-h-[90vh] w-full max-w-6xl">
-            <Image
-              key={current.id}
-              src={current.url}
-              alt={current.alt_text || `Product image ${activeIndex + 1}`}
-              fill
-              sizes="100vw"
-              className="object-contain"
-              priority
-              draggable={false}
-            />
-          </div>
-
-          <button
-            type="button"
-            onClick={showNextImage}
-            className="absolute right-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:right-8 sm:h-14 sm:w-14"
-            aria-label="Next image"
-          >
-            <ChevronRight className="h-7 w-7" />
-          </button>
+          {images.length > 1 && (
+            <footer className="shrink-0 border-t border-white/10 bg-black/20 px-4 py-4 sm:px-8">
+              <div className="mx-auto flex max-w-full items-center justify-center gap-2 overflow-x-auto pb-1">
+                {images.map((image, index) => (
+                  <button
+                    key={image.id}
+                    type="button"
+                    onClick={() => setActiveIndex(index)}
+                    aria-label={`Show image ${index + 1}`}
+                    aria-current={index === activeIndex ? "true" : undefined}
+                    className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-md border transition sm:h-14 sm:w-14 ${index === activeIndex ? "border-white ring-2 ring-white/30" : "border-white/10 opacity-55 hover:opacity-100"}`}
+                  >
+                    <Image src={image.url} alt="" fill sizes="56px" className="object-cover" />
+                  </button>
+                ))}
+              </div>
+            </footer>
+          )}
         </div>
       )}
     </div>
