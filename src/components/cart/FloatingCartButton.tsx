@@ -26,7 +26,7 @@ export default function FloatingCartButton() {
     <button
       data-cart-icon
       onClick={() => dispatch(toggleCart())}
-      className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary)] text-white px-5 py-3 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95"
+      className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-[60] flex items-center gap-2 rounded-full bg-[var(--color-primary)] px-5 py-3 text-white shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95 md:bottom-6 md:right-6"
       style={{
         animation: bounce ? "bounceOnce 0.5s ease" : "none",
       }}
