@@ -9,8 +9,6 @@ import {
   CarouselContent,
   CarouselItem,
   CarouselDots,
-  CarouselPrevious,
-  CarouselNext,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
@@ -140,12 +138,6 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
               </CarouselItem>
             ))}
           </CarouselContent>
-          {banners.length > 1 && (
-            <>
-              <CarouselPrevious className="left-1 h-8 w-8 border-gray-100 bg-white/95 text-gray-600 shadow-md md:-left-2" />
-              <CarouselNext className="right-1 h-8 w-8 border-gray-100 bg-white/95 text-gray-600 shadow-md md:-right-2" />
-            </>
-          )}
           </div>
 
           {/* Dot indicators */}
