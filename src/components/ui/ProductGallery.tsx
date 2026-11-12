@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import Image from "next/image";
-import { Package } from "lucide-react";
+import { ChevronLeft, ChevronRight, Package, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -219,6 +219,15 @@ function ThumbnailButton({
 export default function ProductGallery({ images }: ProductGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
+  const closeLightbox = useCallback(() => setIsLightboxOpen(false), []);
+  const showPreviousImage = useCallback(() => {
+    setActiveIndex((index) => (index - 1 + images.length) % images.length);
+  }, [images.length]);
+  const showNextImage = useCallback(() => {
+    setActiveIndex((index) => (index + 1) % images.length);
+  }, [images.length]);
 
   useEffect(() => {
     if (!images?.length) return;
@@ -235,6 +244,25 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
     const timer = setTimeout(() => setIsLoading(false), 200);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (!isLightboxOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeLightbox();
+      if (event.key === "ArrowLeft") showPreviousImage();
+      if (event.key === "ArrowRight") showNextImage();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [closeLightbox, isLightboxOpen, showNextImage, showPreviousImage]);
 
   if (isLoading) {
     return <GallerySkeleton />;
@@ -269,9 +297,9 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
           />
         ))}
         {images.length > 5 && (
-          <div className="flex h-[90px] w-[90px] shrink-0 items-center justify-center rounded-xl bg-white text-sm font-semibold text-gray-600" aria-label={`${images.length - 5} more images`}>
+          <button type="button" onClick={() => setIsLightboxOpen(true)} className="flex h-[90px] w-[90px] shrink-0 items-center justify-center rounded-xl bg-white text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" aria-label={`View all ${images.length} images`}>
             +{images.length - 5}
-          </div>
+          </button>
         )}
       </div>
 
@@ -299,11 +327,67 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
           />
         ))}
         {images.length > 5 && (
-          <div className="flex h-[70px] w-[70px] shrink-0 items-center justify-center rounded-lg bg-white text-sm font-semibold text-gray-600" aria-label={`${images.length - 5} more images`}>
+          <button type="button" onClick={() => setIsLightboxOpen(true)} className="flex h-[70px] w-[70px] shrink-0 items-center justify-center rounded-lg bg-white text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" aria-label={`View all ${images.length} images`}>
             +{images.length - 5}
-          </div>
+          </button>
         )}
       </div>
+
+      {isLightboxOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 sm:p-8"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Product image preview"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closeLightbox();
+          }}
+        >
+          <button
+            type="button"
+            onClick={closeLightbox}
+            className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            aria-label="Close image preview"
+          >
+            <X className="h-6 w-6" />
+          </button>
+
+          <div className="absolute left-4 top-5 text-sm font-medium text-white/80 sm:left-8">
+            {activeIndex + 1} / {images.length}
+          </div>
+
+          <button
+            type="button"
+            onClick={showPreviousImage}
+            className="absolute left-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:left-8 sm:h-14 sm:w-14"
+            aria-label="Previous image"
+          >
+            <ChevronLeft className="h-7 w-7" />
+          </button>
+
+          <div className="relative h-full max-h-[90vh] w-full max-w-6xl">
+            <Image
+              key={current.id}
+              src={current.url}
+              alt={current.alt_text || `Product image ${activeIndex + 1}`}
+              fill
+              sizes="100vw"
+              className="object-contain"
+              priority
+              draggable={false}
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={showNextImage}
+            className="absolute right-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:right-8 sm:h-14 sm:w-14"
+            aria-label="Next image"
+          >
+            <ChevronRight className="h-7 w-7" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
