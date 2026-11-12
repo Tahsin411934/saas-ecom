@@ -3,12 +3,11 @@
 import { useEffect, useState } from "react";
 import { ShoppingCart } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { selectCartCount, selectCartTotal, toggleCart } from "@/lib/features/cart/cartSlice";
+import { selectCartCount, toggleCart } from "@/lib/features/cart/cartSlice";
 
 export default function FloatingCartButton() {
   const dispatch = useAppDispatch();
   const count = useAppSelector(selectCartCount);
-  const total = useAppSelector(selectCartTotal);
   const [bounce, setBounce] = useState(false);
   const [prevCount, setPrevCount] = useState(count);
 
@@ -37,7 +36,7 @@ export default function FloatingCartButton() {
           {count > 99 ? "99+" : count}
         </span>
       </div>
-      <span className="text-sm font-semibold">৳{total.toLocaleString("en-BD")}</span>
+      <span className="text-sm font-semibold">Cart</span>
       <style jsx>{`
         @keyframes bounceOnce {
           0%, 100% { transform: translateY(0); }
