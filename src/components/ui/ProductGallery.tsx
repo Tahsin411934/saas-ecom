@@ -221,6 +221,17 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!images?.length) return;
+
+    // Warm the browser cache for the gallery images so selecting a thumbnail
+    // does not have to wait for the large main-image request to start.
+    images.slice(0, 5).forEach(({ url }) => {
+      const image = new window.Image();
+      image.src = url;
+    });
+  }, [images]);
+
+  useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 200);
     return () => clearTimeout(timer);
   }, []);
@@ -243,11 +254,11 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
       aria-label="Product image gallery"
     >
       <div
-        className="hidden lg:flex flex-col gap-3 w-[90px] shrink-0 overflow-y-auto max-h-[600px]"
+        className="hidden lg:flex flex-col gap-3 w-[90px] shrink-0 self-stretch"
         role="tablist"
         aria-label="Image thumbnails"
       >
-        {images.map((img, idx) => (
+        {images.slice(0, 5).map((img, idx) => (
           <ThumbnailButton
             key={img.id}
             src={img.url}
@@ -257,6 +268,11 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
             size="desktop"
           />
         ))}
+        {images.length > 5 && (
+          <div className="flex h-[90px] w-[90px] shrink-0 items-center justify-center rounded-xl bg-white text-sm font-semibold text-gray-600" aria-label={`${images.length - 5} more images`}>
+            +{images.length - 5}
+          </div>
+        )}
       </div>
 
       <div className="flex-1 min-w-0">
@@ -272,7 +288,7 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
         role="tablist"
         aria-label="Image thumbnails"
       >
-        {images.map((img, idx) => (
+        {images.slice(0, 5).map((img, idx) => (
           <ThumbnailButton
             key={img.id}
             src={img.url}
@@ -282,6 +298,11 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
             size="mobile"
           />
         ))}
+        {images.length > 5 && (
+          <div className="flex h-[70px] w-[70px] shrink-0 items-center justify-center rounded-lg bg-white text-sm font-semibold text-gray-600" aria-label={`${images.length - 5} more images`}>
+            +{images.length - 5}
+          </div>
+        )}
       </div>
     </div>
   );
