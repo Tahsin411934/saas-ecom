@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import GlobalLoader from "@/components/ui/GlobalLoader";
-import ProductCard from "@/components/ui/ProductCard";
+import ProductGrid from "@/components/ui/ProductGrid";
 import {
   type CategoryProductsData,
   type CategorySortOption,
@@ -385,11 +385,7 @@ export default function CategoryProductsPage({
               <Button variant="outline" className="mt-4" onClick={retry}>Try again</Button>
             </div>
           ) : products.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <ProductGrid products={products} />
           ) : (
             <div className="text-center py-20 bg-white rounded-xl border border-gray-200">
               <ShoppingCart className="mx-auto h-12 w-12 text-gray-300 mb-4" />

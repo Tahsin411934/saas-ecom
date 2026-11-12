@@ -4,7 +4,7 @@ import { buildApiUrl } from "@/lib/api-url";
 import { rewriteLegacyAssetHosts } from "@/lib/asset-url";
 import { REVALIDATE } from "@/config/revalidate";
 import type { Campaign } from "@/services/campaign.service";
-import ProductCard from "@/components/ui/ProductCard";
+import ProductGrid from "@/components/ui/ProductGrid";
 import { toCampaignProductCard } from "@/lib/campaign-product-card";
 import type { Metadata } from "next";
 
@@ -124,13 +124,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ slug:
         )}
       </div>
 
-      <div className="products-carousel">
-        {campaign.products.map((product) => (
-          <div key={product.id} className="product-card-item">
-            <ProductCard product={toCampaignProductCard(product)} />
-          </div>
-        ))}
-      </div>
+      <ProductGrid products={campaign.products.map(toCampaignProductCard)} />
     </main>
   );
 }
