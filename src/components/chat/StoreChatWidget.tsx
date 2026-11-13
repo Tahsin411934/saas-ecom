@@ -10,7 +10,7 @@ import { getChatOrderStatus, sendChatMessage, type ChatOrder, type ChatReply, ty
 import type { ProductSearchResult } from "@/types/product";
 import { useAppSelector } from "@/lib/hooks";
 
-type ChatMessage = ChatTurn & { id: number; products?: ProductSearchResult[]; orders?: ChatOrder[]; loginHref?: string; support?: ChatReply["support"] };
+type ChatMessage = ChatTurn & { id: number; products?: ProductSearchResult[]; details?: string | null; categories?: ChatReply["categories"]; orders?: ChatOrder[]; loginHref?: string; support?: ChatReply["support"] };
 
 const welcomeMessage = "হ্যালো! কী ধরনের পণ্য খুঁজছেন? পণ্যের নাম বা category লিখুন—আমি catalog থেকে খুঁজে দিচ্ছি।";
 const quickPrompts = ["সব jewellery দেখাও", "চুড়ি খুঁজে দাও", "শাড়ি দেখাও"];
@@ -24,7 +24,7 @@ function formatPrice(value: number | null | undefined, unit?: ProductSearchResul
 
 function ProductResultCard({ product, onNavigate }: { product: ProductSearchResult; onNavigate: () => void }) {
   return (
-    <Link href={`/product/${product.slug}`} onClick={onNavigate} className="flex gap-3 rounded-xl border border-slate-200 bg-white p-2.5 transition hover:border-emerald-300 hover:shadow-sm">
+    <Link href={product.url || `/product/${product.slug}`} onClick={onNavigate} className="flex gap-3 rounded-xl border border-slate-200 bg-white p-2.5 transition hover:border-emerald-300 hover:shadow-sm">
       <div className="relative h-[4.5rem] w-[4.5rem] shrink-0 overflow-hidden rounded-lg bg-slate-100">
         {product.main_image ? (
           <Image src={product.main_image} alt={product.name} fill sizes="72px" className="object-cover" />
@@ -115,6 +115,8 @@ export default function StoreChatWidget() {
         role: "assistant",
         content: response.reply,
         products: response.products,
+        details: response.details,
+        categories: response.categories,
         support: response.support,
       }]);
     } catch (error) {
@@ -149,9 +151,11 @@ export default function StoreChatWidget() {
               <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[90%] rounded-2xl px-3.5 py-2.5 ${message.role === "user" ? "rounded-br-md bg-[var(--color-primary)] text-white" : "rounded-bl-md border border-slate-200 bg-white text-slate-800"}`}>
                   <p className="whitespace-pre-wrap text-sm leading-6">{message.content}</p>
+                  {message.details && <p className="mt-2 whitespace-pre-wrap text-xs leading-5 text-slate-600">{message.details}</p>}
                   {message.loginHref && <Link href={message.loginHref} className="mt-2 inline-flex rounded-lg bg-[var(--color-primary)] px-3 py-1.5 text-xs font-semibold text-white">Login to view orders</Link>}
                   {message.support && <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3"><p className="text-xs leading-5 text-emerald-950">{message.support.message}</p><a href={message.support.whatsapp_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700"><MessageCircle className="h-4 w-4" />WhatsApp-এ যোগাযোগ · {message.support.phone}</a></div>}
                   {message.products && message.products.length > 0 && <div className="mt-3 space-y-2">{message.products.map((product) => <ProductResultCard key={product.id} product={product} onNavigate={() => setOpen(false)} />)}</div>}
+                  {message.categories && message.categories.length > 0 && <div className="mt-3 flex flex-wrap gap-2">{message.categories.map((category) => <Link key={category.id} href={category.url} onClick={() => setOpen(false)} className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-800 transition hover:bg-emerald-100">{category.name}</Link>)}</div>}
                   {message.orders && message.orders.length > 0 && <div className="mt-3 space-y-2">{message.orders.map((order) => <OrderResultCard key={order.order_number} order={order} />)}</div>}
                 </div>
               </div>

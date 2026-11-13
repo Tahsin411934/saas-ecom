@@ -9,6 +9,8 @@ export type ChatTurn = {
 export type ChatReply = {
   reply: string;
   products: ProductSearchResult[];
+  details?: string | null;
+  categories?: Array<{ id: number; name: string; slug: string; url: string }>;
   suggestion?: string | null;
   support?: {
     message: string;

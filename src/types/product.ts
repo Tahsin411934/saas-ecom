@@ -199,6 +199,7 @@ export interface ProductSearchResult {
   id: number;
   name: string;
   slug: string;
+  url?: string;
   main_image?: string | null;
   short_description?: string | null;
   /** Price after discount. */
