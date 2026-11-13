@@ -11,7 +11,7 @@ interface TopHeaderBarProps {
 const DEFAULT_BARS: AnnouncementBar[] = [
   {
     id: 0,
-    left_text: "🚚 Free Shipping on Orders Over ৳99",
+    left_text: "🚚 Free Shipping on Orders Over ৳1,999",
     center_text: "Summer Sale is Live! Up to 50% OFF 🔥",
     right_text: "📞 Support: (800) 123-4567",
     background_color: "#0F1115",

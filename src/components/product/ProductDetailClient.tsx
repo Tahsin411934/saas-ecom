@@ -581,7 +581,7 @@ export default function ProductDetailClient({
                   <Truck className="h-5 w-5 text-[var(--color-primary)]" />
                   <div>
                     <p className="text-xs font-semibold text-gray-900">Free Shipping</p>
-                    <p className="text-xs text-gray-500">On orders over Ã Â§Â³99</p>
+                    <p className="text-xs text-gray-500">On orders over ৳1,999</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-3">
