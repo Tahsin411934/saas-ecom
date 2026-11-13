@@ -19,6 +19,7 @@ interface AddToCartButtonProps {
     delivery_charge?: number;
     store_id?: number | null;
     store_name?: string | null;
+    minimum_order_quantity?: number;
   };
   variant?: "icon" | "default" | "full";
   quantity?: number;
@@ -52,6 +53,7 @@ export default function AddToCartButton({
       delivery_charge: product.delivery_charge,
       store_id: product.store_id,
       store_name: product.store_name,
+      minimum_order_quantity: product.minimum_order_quantity,
     };
 
     if (quantity > 1) {

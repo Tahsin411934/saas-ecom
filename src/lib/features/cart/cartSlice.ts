@@ -12,6 +12,8 @@ export interface CartItem {
   variant_option_id?: number;
   quantity: number;
   stock: number;
+  /** Minimum quantity required across all variants of this product. */
+  minimum_order_quantity?: number;
   /** Product-level delivery charge (৳). Missing values fall back to DEFAULT_DELIVERY_CHARGE. */
   delivery_charge?: number;
   /** Owning store of this cart item (null = platform product). Lets checkout warn + split. */
@@ -77,9 +79,9 @@ const cartSlice = createSlice({
           item.variant_option_id === action.payload.variant_option_id
       );
       if (existing) {
-        existing.quantity = Math.min(existing.quantity + 1, 99);
+        existing.quantity = Math.min(existing.quantity + 1, Math.max(99, existing.minimum_order_quantity ?? 1));
       } else {
-        state.items.push({ ...action.payload, quantity: 1 });
+        state.items.push({ ...action.payload, quantity: Math.max(1, action.payload.minimum_order_quantity ?? 1) });
       }
       saveCart(state.items);
       // Set animating item for fly animation
@@ -100,7 +102,7 @@ const cartSlice = createSlice({
           item.variant_option_id === action.payload.variant_option_id
       );
       if (existing) {
-        existing.quantity = Math.min(existing.quantity + action.payload.quantity, 99);
+        existing.quantity = Math.min(existing.quantity + action.payload.quantity, Math.max(99, existing.minimum_order_quantity ?? 1));
       } else {
         state.items.push({ ...action.payload, quantity: action.payload.quantity });
       }
@@ -133,7 +135,7 @@ const cartSlice = createSlice({
           item.variant_option_id === action.payload.variant_option_id
       );
       if (item) {
-        item.quantity = Math.max(1, Math.min(99, action.payload.quantity));
+        item.quantity = Math.max(1, Math.min(Math.max(99, item.minimum_order_quantity ?? 1), action.payload.quantity));
       }
       saveCart(state.items);
     },

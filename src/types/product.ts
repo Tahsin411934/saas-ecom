@@ -28,6 +28,7 @@ export interface ProductListItem {
   } | null;
   /** Product-level delivery charge (৳) — the highest one in the cart becomes the shipping charge. */
   delivery_charge?: number;
+  minimum_order_quantity?: number;
   product_type: string;
   stock_status?: string;
   rating?: number;
@@ -89,6 +90,7 @@ export interface ProductDetailData {
   published_at: string | null;
   /** Product-level delivery charge (৳) — the highest one in the cart becomes the shipping charge. */
   delivery_charge?: number;
+  minimum_order_quantity?: number;
   /** Owning store (null = platform product) — drives multi-store split-shipment warnings. */
   store_id?: number | null;
   store?: {

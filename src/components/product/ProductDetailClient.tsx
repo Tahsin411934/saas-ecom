@@ -25,7 +25,7 @@ import {
 } from "@/services/product-detail.service";
 import ProductGallery from "@/components/ui/ProductGallery";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { addToCart } from "@/lib/features/cart/cartSlice";
+import { addToCartWithQuantity } from "@/lib/features/cart/cartSlice";
 import {
   toggleWishlistItem,
   fetchWishlistItems,
@@ -58,7 +58,8 @@ export default function ProductDetailClient({
   const [selectedColor, setSelectedColor] = useState<string | null>(initialOption?.color_name ?? null);
   const [selectedSize, setSelectedSize] = useState<string | null>(initialVariant?.attributes?.size ?? initialVariant?.name ?? null);
   const [selectedOption, setSelectedOption] = useState<VariantOption | null>(initialOption);
-  const [quantity, setQuantity] = useState(1);
+  const minimumOrderQuantity = Math.max(1, product.minimum_order_quantity ?? 1);
+  const [quantity, setQuantity] = useState(minimumOrderQuantity);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewTitle, setReviewTitle] = useState("");
@@ -139,7 +140,7 @@ export default function ProductDetailClient({
 
   const handleVariantOptionClick = (option: VariantOption) => {
     setSelectedOption(option);
-    setQuantity(1);
+    setQuantity(minimumOrderQuantity);
     // Update color if option has color_name
     if (option.color_name) {
       setSelectedColor(option.color_name);
@@ -205,7 +206,7 @@ export default function ProductDetailClient({
 
   const handleAddToCart = () => {
     dispatch(
-      addToCart({
+      addToCartWithQuantity({
         id: product.id,
         name: product.name,
         slug: product.slug,
@@ -218,6 +219,9 @@ export default function ProductDetailClient({
         delivery_charge: product.delivery_charge,
         store_id: product.store_id,
         store_name: product.store?.name,
+        minimum_order_quantity: minimumOrderQuantity,
+        quantity,
+        animation: true,
       })
     );
 
@@ -538,7 +542,7 @@ export default function ProductDetailClient({
                 {/* Quantity selector */}
                 <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden">
                   <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    onClick={() => setQuantity(Math.max(minimumOrderQuantity, quantity - 1))}
                     className="flex h-12 w-12 items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
                     aria-label="Decrease quantity"
                     disabled={!inStock}
@@ -549,7 +553,7 @@ export default function ProductDetailClient({
                     {quantity}
                   </span>
                   <button
-                    onClick={() => setQuantity(Math.min(99, quantity + 1))}
+                    onClick={() => setQuantity(Math.min(Math.max(99, minimumOrderQuantity), quantity + 1))}
                     className="flex h-12 w-12 items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
                     aria-label="Increase quantity"
                     disabled={!inStock}
@@ -557,6 +561,11 @@ export default function ProductDetailClient({
                     <Plus className="h-4 w-4" />
                   </button>
                 </div>
+                {minimumOrderQuantity > 1 && (
+                  <p className="text-xs text-gray-500 sm:self-center">
+                    Minimum order: {minimumOrderQuantity}{unitLabel ? ` ${unitLabel}` : ""}
+                  </p>
+                )}
 
                 {/* Add to Cart */}
                 <Button

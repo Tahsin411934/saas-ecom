@@ -43,6 +43,15 @@ export default function CheckoutPage() {
   // per order (one parcel = one charge) — the same rule the backend applies.
   const shippingCost = useAppSelector(selectShippingTotal);
   const grandTotal = total + shippingCost;
+  const minimumOrderViolations = Array.from(
+    items.reduce((totals, item) => {
+      const current = totals.get(item.id) ?? { name: item.name, quantity: 0, minimum: 1 };
+      current.quantity += item.quantity;
+      current.minimum = Math.max(current.minimum, item.minimum_order_quantity ?? 1);
+      totals.set(item.id, current);
+      return totals;
+    }, new Map<number, { name: string; quantity: number; minimum: number }>()).values(),
+  ).filter((product) => product.quantity < product.minimum);
 
   // When the cart holds products from more than one store, the backend splits
   // the checkout into one order per store (each with its own delivery charge).
@@ -60,6 +69,11 @@ export default function CheckoutPage() {
   const handleCheckout = async () => {
     if (!isInitialized) {
       setError("Please wait a moment and try again.");
+      return;
+    }
+
+    if (minimumOrderViolations.length > 0) {
+      setError(`Minimum order quantity not met: ${minimumOrderViolations.map((product) => `${product.name} (${product.quantity}/${product.minimum})`).join(", ")}.`);
       return;
     }
 
@@ -163,7 +177,8 @@ export default function CheckoutPage() {
         setError(result.message || "Checkout failed. Please try again.");
       }
     } catch (err) {
-      setError("An error occurred during checkout. Please try again.");
+      const apiMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setError(apiMessage || "An error occurred during checkout. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -243,6 +258,14 @@ export default function CheckoutPage() {
               <h2 className="text-lg font-bold text-gray-900 mb-4">Order Summary</h2>
               
               <div className="space-y-4 mb-6">
+                {minimumOrderViolations.length > 0 && (
+                  <div role="alert" className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                    <p className="font-semibold">Minimum order quantity required</p>
+                    {minimumOrderViolations.map((product) => (
+                      <p key={product.name} className="mt-1">{product.name}: {product.quantity} in cart, minimum {product.minimum}</p>
+                    ))}
+                  </div>
+                )}
                 {items.map((item) => (
                   <div key={`${item.id}-${item.variant_id}-${item.variant_option_id}`} className="flex gap-4 pb-4 border-b border-gray-100 last:border-0">
                     <div className="w-16 h-16 rounded-lg bg-gray-100 flex-shrink-0 overflow-hidden">

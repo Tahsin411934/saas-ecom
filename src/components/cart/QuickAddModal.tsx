@@ -43,6 +43,7 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const minimumOrderQuantity = Math.max(1, detail?.minimum_order_quantity ?? 1);
 
   useEffect(() => {
     if (!open) return;
@@ -66,7 +67,7 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
     setSelectedVariant(detail.variants && detail.variants.length > 0 ? detail.variants[0] : null);
     setSelectedColor(null);
     setSelectedSize(null);
-    setQuantity(1);
+    setQuantity(Math.max(1, detail.minimum_order_quantity ?? 1));
   }, [detail]);
 
   useEffect(() => {
@@ -131,6 +132,7 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
       variant_name: selectedVariant?.name,
       stock: stockCount,
       delivery_charge: detail?.delivery_charge,
+      minimum_order_quantity: minimumOrderQuantity,
     };
 
     if (quantity > 1) {
@@ -350,7 +352,7 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
                 <div className="flex items-center rounded-2xl border border-gray-200 bg-gray-50 p-1">
                   <button
                     type="button"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    onClick={() => setQuantity(Math.max(minimumOrderQuantity, quantity - 1))}
                     className="flex h-10 w-10 items-center justify-center text-gray-600 hover:bg-gray-100 rounded-2xl"
                     disabled={!inStock}
                     aria-label="Decrease quantity"
@@ -360,7 +362,7 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
                   <span className="mx-4 text-sm font-semibold text-gray-900">{quantity}</span>
                   <button
                     type="button"
-                    onClick={() => setQuantity(Math.min(99, quantity + 1))}
+                    onClick={() => setQuantity(Math.min(Math.max(99, minimumOrderQuantity), quantity + 1))}
                     className="flex h-10 w-10 items-center justify-center text-gray-600 hover:bg-gray-100 rounded-2xl"
                     disabled={!inStock}
                     aria-label="Increase quantity"
@@ -368,6 +370,11 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
                     <Plus className="h-4 w-4" />
                   </button>
                 </div>
+                {minimumOrderQuantity > 1 && (
+                  <p className="text-xs text-gray-500 sm:self-center">
+                    Minimum order: {minimumOrderQuantity}{detail?.unit?.short_name ? ` ${detail.unit.short_name}` : detail?.unit?.name ? ` ${detail.unit.name}` : ""}
+                  </p>
+                )}
 
                 <Button
                   onClick={handleAddToCart}
