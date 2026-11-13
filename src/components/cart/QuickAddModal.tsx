@@ -218,9 +218,6 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
             <div className="space-y-3">
               <p className="text-sm text-gray-500">{detail?.brand?.name ?? "Product"}</p>
               <h2 className="text-2xl font-bold text-gray-900">{product.name}</h2>
-              {detail?.short_description && (
-                <p className="text-sm leading-6 text-gray-600">{detail.short_description}</p>
-              )}
             </div>
 
             <div className="flex flex-col gap-4 rounded-[1.5rem] border border-gray-200 bg-white p-5 shadow-sm">
