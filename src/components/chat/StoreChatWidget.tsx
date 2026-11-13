@@ -131,7 +131,7 @@ export default function StoreChatWidget() {
   return (
     <div className={`fixed right-4 z-[80] flex flex-col items-end gap-3 md:right-6 ${cartCount > 0 ? "bottom-[calc(9.5rem+env(safe-area-inset-bottom))] md:bottom-24" : "bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-6"}`}>
       {open && (
-        <section aria-label="OneHaat shopping assistant" className="flex h-[min(74dvh,38rem)] w-[min(calc(100vw-2rem),24rem)] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/15">
+        <section aria-label="OneHaat shopping assistant" className="flex h-[min(68dvh,36rem)] w-[min(calc(100vw-2rem),24rem)] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/15 md:h-[min(74dvh,38rem)]">
           <header className="flex items-center justify-between bg-[var(--color-primary)] px-4 py-3 text-white">
             <div className="flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15"><Bot className="h-5 w-5" /></span>
@@ -165,9 +165,9 @@ export default function StoreChatWidget() {
         </section>
       )}
 
-      <button type="button" onClick={() => setOpen((value) => !value)} aria-label={open ? "Close shopping assistant" : "Open shopping assistant"} aria-expanded={open} className="flex h-14 items-center gap-2 rounded-full bg-[var(--color-primary)] px-4 text-white shadow-lg shadow-emerald-900/20 transition hover:-translate-y-0.5 hover:shadow-xl">
-        {open ? <X className="h-5 w-5" /> : <><span className="relative"><MessageCircle className="h-5 w-5" /><Sparkles className="absolute -right-1 -top-1 h-3 w-3 fill-white" /></span><span className="text-sm font-semibold">Ask us</span></>}
-      </button>
+      {!open && <button type="button" onClick={() => setOpen(true)} aria-label="Open shopping assistant" aria-expanded={false} className="flex h-14 items-center gap-2 rounded-full bg-[var(--color-primary)] px-4 text-white shadow-lg shadow-emerald-900/20 transition hover:-translate-y-0.5 hover:shadow-xl">
+        <span className="relative"><MessageCircle className="h-5 w-5" /><Sparkles className="absolute -right-1 -top-1 h-3 w-3 fill-white" /></span><span className="text-sm font-semibold">Ask us</span>
+      </button>}
     </div>
   );
 }
