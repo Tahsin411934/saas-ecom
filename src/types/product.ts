@@ -199,6 +199,8 @@ export interface ProductSearchResult {
   id: number;
   name: string;
   slug: string;
+  main_image?: string | null;
+  short_description?: string | null;
   /** Price after discount. */
   price: number | null;
   sale_price?: number;
@@ -208,6 +210,10 @@ export interface ProductSearchResult {
   thumbnail?: string;
   category?: string;
   stock_status?: string;
+  available_colors?: string[];
+  available_sizes?: string[];
+  minimum_order_quantity?: number;
+  unit?: { id: number; name: string; short_name: string } | null;
 }
 
 export interface ProductSearchResponse {
