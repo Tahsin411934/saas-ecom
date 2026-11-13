@@ -24,6 +24,11 @@ export interface ProductCardItem {
   discount_amount?: number;
   /** Whether the product currently has a discount. */
   has_discount?: boolean;
+  unit?: {
+    id: number;
+    name: string;
+    short_name: string;
+  } | null;
   product_type?: string;
   stock_status?: string;
   rating?: number;
@@ -37,6 +42,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, viewMode = "grid" }: ProductCardProps) {
   const displayPrice = product.price;
+  const unitLabel = product.unit?.short_name || product.unit?.name;
   const inStock = product.stock_status !== "out_of_stock";
 
   // Discount display helpers
@@ -114,6 +120,7 @@ export default function ProductCard({ product, viewMode = "grid" }: ProductCardP
                 <span className="text-lg font-bold text-[var(--color-primary)]">
                   ৳{displayPrice?.toLocaleString("en-BD")}
                 </span>
+                {unitLabel && <span className="text-xs text-gray-500">/ {unitLabel}</span>}
                 {regularPrice != null && (
                   <span className="text-sm text-gray-400 line-through">
                     ৳{regularPrice.toLocaleString("en-BD")}
@@ -162,6 +169,7 @@ export default function ProductCard({ product, viewMode = "grid" }: ProductCardP
         </Link>
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
           <span className={`text-sm font-bold ${hasDiscount ? "text-rose-500" : "text-gray-900"}`}>৳{displayPrice?.toLocaleString("en-BD")}</span>
+          {unitLabel && <span className="text-[10px] text-gray-500">/ {unitLabel}</span>}
           {regularPrice != null && <span className="text-[10px] text-gray-400 line-through">৳{regularPrice.toLocaleString("en-BD")}</span>}
         </div>
         <div className="mb-2 mt-1 flex min-h-4 items-center gap-1 text-[10px] leading-4 text-gray-500">

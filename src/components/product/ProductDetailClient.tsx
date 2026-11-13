@@ -49,6 +49,7 @@ export default function ProductDetailClient({
 }: ProductDetailClientProps) {
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const unitLabel = product.unit?.short_name || product.unit?.name;
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     product.variants && product.variants.length > 0 ? product.variants[0] : null,
   );
@@ -426,6 +427,9 @@ export default function ProductDetailClient({
                 <span className="text-3xl font-bold text-gray-900">
                   ৳{currentPrice.toLocaleString("en-BD")}
                 </span>
+                {unitLabel && (
+                  <span className="text-sm font-medium text-gray-500">/ {unitLabel}</span>
+                )}
                 {hasSale && (
                   <span className="text-lg text-gray-400 line-through">
                     ৳{comparePrice.toLocaleString("en-BD")}
