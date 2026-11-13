@@ -15,6 +15,8 @@ import {
   Truck,
   ShieldCheck,
   RotateCcw,
+  Phone,
+  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +35,7 @@ import {
 } from "@/lib/features/wishlist/wishlistSlice";
 import { requireAuth } from "@/lib/require-auth";
 import { reviewService } from "@/services/review.service";
+import { settingsService } from "@/services/settings.service";
 import { toast } from "react-toastify";
 import {
   trackViewItem,
@@ -66,6 +69,32 @@ export default function ProductDetailClient({
   const [reviewBody, setReviewBody] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
   const [updatingWishlist, setUpdatingWishlist] = useState(false);
+  const [contactNumbers, setContactNumbers] = useState({ phone: "01856533432", whatsapp: "01856533432" });
+
+  useEffect(() => {
+    let active = true;
+    settingsService.getAll().then((settings) => {
+      if (!active) return;
+      const values = settings.data ?? {};
+      setContactNumbers({
+        phone: values.phone || values.whatsapp_number || "01856533432",
+        whatsapp: values.whatsapp_number || values.phone || "01856533432",
+      });
+    }).catch(() => {
+      // Keep the configured support number as a fallback when settings are unavailable.
+    });
+    return () => { active = false; };
+  }, []);
+
+  const toInternationalNumber = (value: string) => {
+    const digits = value.replace(/\D/g, "");
+    if (digits.startsWith("880")) return digits;
+    if (digits.startsWith("0")) return `88${digits}`;
+    return digits;
+  };
+  const whatsappMessage = `Hello, I want to order ${product.name}${selectedVariant?.name ? ` (${selectedVariant.name})` : ""}${selectedOption?.color_name ? `, color: ${selectedOption.color_name}` : ""}. Quantity: ${quantity}. Product: ${typeof window !== "undefined" ? window.location.href : ""}`;
+  const whatsappHref = `https://wa.me/${toInternationalNumber(contactNumbers.whatsapp)}?text=${encodeURIComponent(whatsappMessage)}`;
+  const phoneHref = `tel:+${toInternationalNumber(contactNumbers.phone)}`;
 
   // The selected color option is the sellable item when a variant has colors.
   const basePrice =
@@ -586,6 +615,27 @@ export default function ProductDetailClient({
                 >
                   <Share2 className="h-5 w-5" />
                 </Button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Order ${product.name} through WhatsApp`}
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1fb858]"
+                >
+                  <MessageCircle className="h-5 w-5" />
+                  WhatsApp-এ অর্ডার করুন
+                </a>
+                <a
+                  href={phoneHref}
+                  aria-label={`Call about ${product.name}`}
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-800 transition-colors hover:bg-gray-50"
+                >
+                  <Phone className="h-5 w-5 text-[var(--color-primary)]" />
+                  কল করে যোগাযোগ করুন
+                </a>
               </div>
 
               {/* Product Features */}

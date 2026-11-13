@@ -9,7 +9,6 @@ import StoreProvider from "@/lib/StoreProvider";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 import ToastProvider from "@/components/ui/ToastProvider";
 import CartDrawer from "@/components/cart/CartDrawer";
-import FloatingCartButton from "@/components/cart/FloatingCartButton";
 import FloatingPartnerButton from "@/components/partner/FloatingPartnerButton";
 import StoreChatWidget from "@/components/chat/StoreChatWidget";
 import { normalizeAssetUrl } from "@/lib/asset-url";
@@ -241,7 +240,6 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           <Footer />
           <MobileBottomNav />
           <CartDrawer />
-          <FloatingCartButton />
           <FloatingPartnerButton />
           <StoreChatWidget />
           <ToastProvider />
