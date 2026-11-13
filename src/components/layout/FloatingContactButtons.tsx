@@ -35,7 +35,7 @@ export default function FloatingContactButtons() {
   const whatsappMessage = encodeURIComponent("Hello, I need help with a product or order from OneHaat.");
 
   return (
-    <div className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] left-4 z-[70] flex items-center gap-2 md:bottom-6 md:left-6" aria-label="Contact OneHaat">
+    <div className="fixed bottom-[calc(10rem+env(safe-area-inset-bottom))] right-4 z-[70] flex flex-col items-center gap-2 md:bottom-24 md:right-6" aria-label="Contact OneHaat">
       <a
         href={`https://wa.me/${internationalNumber(numbers.whatsapp)}?text=${whatsappMessage}`}
         target="_blank"
