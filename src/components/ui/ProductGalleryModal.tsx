@@ -122,14 +122,14 @@ function ThumbnailButton({ src, alt, isActive, onClick }: { src: string; alt: st
     <button
       onClick={onClick}
       className={cn(
-        "relative overflow-hidden rounded-lg transition-all duration-200 w-[70px] h-[70px]",
+        "relative h-14 w-14 shrink-0 snap-start overflow-hidden rounded-lg transition-all duration-200 sm:h-16 sm:w-16 md:h-[70px] md:w-[70px]",
         isActive ? "border-2 border-[var(--color-primary)] shadow-md" : "border-transparent bg-white hover:border-gray-200"
       )}
       aria-label={`View ${alt}`}
       aria-current={isActive ? "true" : undefined}
       type="button"
     >
-      <Image src={src} alt={alt} fill sizes="70px" className="object-cover" draggable={false} />
+      <Image src={src} alt={alt} fill sizes="(max-width: 639px) 56px, (max-width: 767px) 64px, 70px" className="object-cover" draggable={false} />
     </button>
   );
 }
@@ -151,11 +151,11 @@ export default function ProductGalleryModal({ images, mainHeight = "h-72" }: Pro
   const current = images[activeIndex];
 
   return (
-    <div className="space-y-3 w-full">
+    <div className="min-w-0 w-full space-y-3">
       <MainImageViewer src={current.url} alt={current.alt_text || `Product image ${activeIndex + 1}`} height={mainHeight} />
 
       {images.length > 1 && (
-        <div className="flex gap-3 overflow-x-auto pb-2">
+        <div className="flex min-w-0 snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain pb-2 sm:gap-3" aria-label="Product image previews">
           {images.map((img, idx) => (
             <ThumbnailButton key={img.id} src={img.url} alt={img.alt_text || `Image ${idx + 1}`} isActive={idx === activeIndex} onClick={() => setActiveIndex(idx)} />
           ))}

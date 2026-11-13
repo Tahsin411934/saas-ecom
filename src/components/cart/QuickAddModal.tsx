@@ -199,7 +199,7 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
                   if (allImages.length > 0) {
                     return (
                       <div className="mx-auto w-full max-w-[320px] md:mx-0 md:max-w-none md:w-[320px]">
-                        <ProductGalleryModal images={allImages} mainHeight="h-72" />
+                        <ProductGalleryModal images={allImages} mainHeight="h-52 sm:h-60 md:h-64 lg:h-72" />
                       </div>
                     );
                   }
