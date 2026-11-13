@@ -8,7 +8,8 @@
   font-size: 14px !important;
   cursor: pointer !important;
   background-color: white !important;
-  width: 220px !important;
+  width: 100% !important;
+  min-width: 0 !important;
 }
 
 .category-select__control:hover {

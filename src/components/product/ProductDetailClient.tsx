@@ -606,18 +606,9 @@ export default function ProductDetailClient({
                   {inStock ? "Add to Cart" : "Out of Stock"}
                 </Button>
 
-                {/* Share */}
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-12 w-12 rounded-xl"
-                  aria-label="Share product"
-                >
-                  <Share2 className="h-5 w-5" />
-                </Button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_3rem]">
                 <a
                   href={whatsappHref}
                   target="_blank"
@@ -636,6 +627,14 @@ export default function ProductDetailClient({
                   <Phone className="h-5 w-5 text-[var(--color-primary)]" />
                   কল করে যোগাযোগ করুন
                 </a>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-12 w-full rounded-xl sm:w-12"
+                  aria-label="Share product"
+                >
+                  <Share2 className="h-5 w-5" />
+                </Button>
               </div>
 
               {/* Product Features */}

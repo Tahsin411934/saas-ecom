@@ -167,8 +167,8 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[calc(100vh-1.5rem)] w-[calc(100vw-1.5rem)] rounded-2xl p-0 sm:max-h-[calc(100vh-4rem)] sm:w-[min(95vw,70rem)] sm:rounded-[2rem]">
-        <DialogHeader className="flex items-start justify-between gap-4 border-b border-gray-200 px-4 py-3 sm:px-6 sm:py-4">
+      <DialogContent className="max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] overflow-x-hidden overflow-y-auto rounded-2xl p-0 sm:max-h-[calc(100dvh-3rem)] sm:w-[min(95vw,70rem)] sm:rounded-[2rem]">
+        <DialogHeader className="flex items-start justify-between gap-4 border-b border-gray-200 px-4 py-3 pr-12 sm:px-6 sm:py-4 sm:pr-16">
           <div>
             <DialogTitle>Quick Add To Cart</DialogTitle>
             <p className="text-sm text-gray-500">Review variant options and stock before checkout.</p>
@@ -181,8 +181,8 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
           </button>
         </DialogClose>
 
-        <div className="grid gap-4 px-4 py-4 sm:gap-6 sm:px-6 sm:py-6 md:grid-cols-[320px_minmax(0,1fr)]">
-          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3 sm:rounded-[1.5rem] sm:p-4">
+        <div className="grid min-w-0 gap-3 px-3 py-3 sm:gap-6 sm:px-6 sm:py-6 md:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
+          <div className="min-w-0 rounded-2xl border border-gray-200 bg-gray-50 p-2.5 sm:rounded-[1.5rem] sm:p-4">
             {loading ? (
               <div className="flex h-72 items-center justify-center">
                 <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
@@ -214,13 +214,13 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
             )}
           </div>
 
-          <div className="space-y-5">
+          <div className="min-w-0 space-y-4 sm:space-y-5">
             <div className="space-y-3">
               <p className="text-sm text-gray-500">{detail?.brand?.name ?? "Product"}</p>
-              <h2 className="text-2xl font-bold text-gray-900">{product.name}</h2>
+              <h2 className="break-words text-xl font-bold text-gray-900 sm:text-2xl">{product.name}</h2>
             </div>
 
-            <div className="flex flex-col gap-4 rounded-[1.5rem] border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="flex min-w-0 flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:rounded-[1.5rem] sm:p-5">
               <div className="flex items-center gap-3">
                 <div className="text-3xl font-semibold text-gray-900">৳{price.toLocaleString("en-BD")}</div>
                 {comparePrice ? (
@@ -251,7 +251,7 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
                         return (
                           <div className="mb-3">
                             <div className="text-sm font-medium text-gray-700">Color</div>
-                            <div className="flex gap-2 mt-2">
+                            <div className="mt-2 flex flex-wrap gap-2">
                               {colors.map((c) => {
                                 const option = detail?.attribute_options?.colors.find((opt) => opt.value === c);
                                 const hasStock = option ? option.available : detail?.variants.some((v) => v.attributes?.color === c && ((v.stock ?? 0) > 0 || v.allow_backorder));
@@ -262,10 +262,10 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
                                     type="button"
                                     onClick={() => { setSelectedColor(c); setQuantity(1); }}
                                     disabled={!hasStock}
-                                    className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all border ${selectedColor === c ? 'ring-2 ring-[var(--color-primary)] border-[var(--color-primary)]' : 'border-gray-200'} ${!hasStock ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                    className={`flex min-w-0 max-w-full items-center gap-2 rounded-lg border px-2.5 py-2 transition-all sm:px-3 ${selectedColor === c ? 'ring-2 ring-[var(--color-primary)] border-[var(--color-primary)]' : 'border-gray-200'} ${!hasStock ? 'opacity-40 cursor-not-allowed' : ''}`}
                                   >
-                                    <span className="inline-flex h-4 w-4 rounded-full border ${hex ? 'border-gray-200' : 'border-gray-300'}" style={{ backgroundColor: hex ? `#${hex}` : undefined }} />
-                                    <span className="text-sm">{c}</span>
+                                    <span className={`inline-flex h-4 w-4 shrink-0 rounded-full border ${hex ? 'border-gray-200' : 'border-gray-300'}`} style={{ backgroundColor: hex ? `#${hex}` : undefined }} />
+                                    <span className="break-words text-left text-xs sm:text-sm">{c}</span>
                                     {option?.available_count != null ? (
                                       <span className="text-[11px] text-gray-500">({option.available_count})</span>
                                     ) : null}
@@ -286,7 +286,7 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
                         return (
                           <div className="mb-3">
                             <div className="text-sm font-medium text-gray-700">Size</div>
-                            <div className="flex gap-2 mt-2">
+                            <div className="mt-2 flex flex-wrap gap-2">
                               {sizes.map((s) => {
                                 const option = detail?.attribute_options?.sizes.find((opt) => opt.value === s);
                                 const hasStock = option ? option.available && (!selectedColor || detail?.variants.some((v) => v.attributes?.size === s && v.attributes?.color === selectedColor && ((v.stock ?? 0) > 0 || v.allow_backorder))) : detail?.variants.some((v) => v.attributes?.size === s && ((v.stock ?? 0) > 0 || v.allow_backorder) && (selectedColor ? v.attributes?.color === selectedColor : true));
@@ -296,7 +296,7 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
                                     type="button"
                                     onClick={() => { setSelectedSize(s); setQuantity(1); }}
                                     disabled={!hasStock}
-                                    className={`px-3 py-2 rounded-lg text-sm border ${selectedSize === s ? 'ring-2 ring-[var(--color-primary)] border-[var(--color-primary)]' : 'border-gray-200'} ${!hasStock ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                    className={`max-w-full rounded-lg border px-3 py-2 text-sm ${selectedSize === s ? 'ring-2 ring-[var(--color-primary)] border-[var(--color-primary)]' : 'border-gray-200'} ${!hasStock ? 'opacity-40 cursor-not-allowed' : ''}`}
                                   >
                                     {s}
                                     {option?.available_count != null ? (
