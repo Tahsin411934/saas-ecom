@@ -6,11 +6,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { Bot, LoaderCircle, MessageCircle, Send, Sparkles, X } from "lucide-react";
 import { ApiError } from "@/lib/api";
-import { getChatOrderStatus, sendChatMessage, type ChatOrder, type ChatTurn } from "@/services/chat.service";
+import { getChatOrderStatus, sendChatMessage, type ChatOrder, type ChatReply, type ChatTurn } from "@/services/chat.service";
 import type { ProductSearchResult } from "@/types/product";
 import { useAppSelector } from "@/lib/hooks";
+import { selectCartCount } from "@/lib/features/cart/cartSlice";
 
-type ChatMessage = ChatTurn & { id: number; products?: ProductSearchResult[]; orders?: ChatOrder[]; loginHref?: string };
+type ChatMessage = ChatTurn & { id: number; products?: ProductSearchResult[]; orders?: ChatOrder[]; loginHref?: string; support?: ChatReply["support"] };
 
 const welcomeMessage = "হ্যালো! কী ধরনের পণ্য খুঁজছেন? পণ্যের নাম বা category লিখুন—আমি catalog থেকে খুঁজে দিচ্ছি।";
 const quickPrompts = ["সব jewellery দেখাও", "চুড়ি খুঁজে দাও", "শাড়ি দেখাও"];
@@ -22,9 +23,9 @@ function formatPrice(value: number | null | undefined, unit?: ProductSearchResul
   return unitLabel ? `${price} / ${unitLabel}` : price;
 }
 
-function ProductResultCard({ product }: { product: ProductSearchResult }) {
+function ProductResultCard({ product, onNavigate }: { product: ProductSearchResult; onNavigate: () => void }) {
   return (
-    <Link href={`/product/${product.slug}`} className="flex gap-3 rounded-xl border border-slate-200 bg-white p-2.5 transition hover:border-emerald-300 hover:shadow-sm">
+    <Link href={`/product/${product.slug}`} onClick={onNavigate} className="flex gap-3 rounded-xl border border-slate-200 bg-white p-2.5 transition hover:border-emerald-300 hover:shadow-sm">
       <div className="relative h-[4.5rem] w-[4.5rem] shrink-0 overflow-hidden rounded-lg bg-slate-100">
         {product.main_image ? (
           <Image src={product.main_image} alt={product.name} fill sizes="72px" className="object-cover" />
@@ -55,6 +56,7 @@ function OrderResultCard({ order }: { order: ChatOrder }) {
 
 export default function StoreChatWidget() {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const cartCount = useAppSelector(selectCartCount);
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
@@ -109,6 +111,7 @@ export default function StoreChatWidget() {
         role: "assistant",
         content: response.reply,
         products: response.products,
+        support: response.support,
       }]);
     } catch (error) {
       const message = error instanceof ApiError && error.status === 429
@@ -126,7 +129,7 @@ export default function StoreChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-20 right-4 z-[80] flex flex-col items-end gap-3 md:bottom-6 md:right-6">
+    <div className={`fixed right-4 z-[80] flex flex-col items-end gap-3 md:right-6 ${cartCount > 0 ? "bottom-[calc(9.5rem+env(safe-area-inset-bottom))] md:bottom-24" : "bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-6"}`}>
       {open && (
         <section aria-label="OneHaat shopping assistant" className="flex h-[min(74dvh,38rem)] w-[min(calc(100vw-2rem),24rem)] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/15">
           <header className="flex items-center justify-between bg-[var(--color-primary)] px-4 py-3 text-white">
@@ -143,7 +146,8 @@ export default function StoreChatWidget() {
                 <div className={`max-w-[90%] rounded-2xl px-3.5 py-2.5 ${message.role === "user" ? "rounded-br-md bg-[var(--color-primary)] text-white" : "rounded-bl-md border border-slate-200 bg-white text-slate-800"}`}>
                   <p className="whitespace-pre-wrap text-sm leading-6">{message.content}</p>
                   {message.loginHref && <Link href={message.loginHref} className="mt-2 inline-flex rounded-lg bg-[var(--color-primary)] px-3 py-1.5 text-xs font-semibold text-white">Login to view orders</Link>}
-                  {message.products && message.products.length > 0 && <div className="mt-3 space-y-2">{message.products.map((product) => <ProductResultCard key={product.id} product={product} />)}</div>}
+                  {message.support && <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3"><p className="text-xs leading-5 text-emerald-950">{message.support.message}</p><a href={message.support.whatsapp_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700"><MessageCircle className="h-4 w-4" />WhatsApp-এ যোগাযোগ · {message.support.phone}</a></div>}
+                  {message.products && message.products.length > 0 && <div className="mt-3 space-y-2">{message.products.map((product) => <ProductResultCard key={product.id} product={product} onNavigate={() => setOpen(false)} />)}</div>}
                   {message.orders && message.orders.length > 0 && <div className="mt-3 space-y-2">{message.orders.map((order) => <OrderResultCard key={order.order_number} order={order} />)}</div>}
                 </div>
               </div>

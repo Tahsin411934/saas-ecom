@@ -10,6 +10,11 @@ export type ChatReply = {
   reply: string;
   products: ProductSearchResult[];
   suggestion?: string | null;
+  support?: {
+    message: string;
+    whatsapp_url: string;
+    phone: string;
+  } | null;
 };
 
 export type ChatOrder = {
