@@ -2,20 +2,24 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Store } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { MessageCircle, Sparkles } from "lucide-react";
 
 export default function FloatingPartnerButton() {
   const pathname = usePathname();
   if (pathname === "/become-a-partner") return null;
 
   return (
-    <Button asChild className="group fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] left-4 z-[60] flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-[var(--color-primary)] p-0 text-white shadow-lg transition-all hover:brightness-90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-primary)] sm:h-auto sm:w-auto sm:min-h-8 sm:justify-start sm:gap-1.5 sm:py-2 sm:pl-1 sm:pr-4 md:bottom-6 md:left-6 md:pr-5">
-      <Link href="/become-a-partner">
-        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/15"><Store size={12} /></span>
-        <span className="hidden text-xs font-semibold sm:inline sm:text-sm">Become a partner</span>
-        <ArrowRight size={10} className="hidden transition-transform motion-safe:group-hover:translate-x-0.5 sm:block" />
-      </Link>
-    </Button>
+    <Link
+      href="#ask-us"
+      onClick={(event) => {
+        event.preventDefault();
+        window.dispatchEvent(new Event("open-store-chat"));
+      }}
+      aria-label="Ask us"
+      className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-[80] inline-flex h-14 items-center gap-2 rounded-full bg-[var(--color-primary)] px-4 text-white shadow-xl shadow-emerald-900/20 transition hover:-translate-y-0.5 hover:shadow-2xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-primary)] md:bottom-6 md:right-6"
+    >
+      <span className="relative"><MessageCircle className="h-5 w-5" /><Sparkles className="absolute -right-1 -top-1 h-3 w-3 fill-white" /></span>
+      <span className="text-sm font-semibold">Ask us</span>
+    </Link>
   );
 }

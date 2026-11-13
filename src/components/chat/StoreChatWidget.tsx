@@ -9,7 +9,6 @@ import { ApiError } from "@/lib/api";
 import { getChatOrderStatus, sendChatMessage, type ChatOrder, type ChatReply, type ChatTurn } from "@/services/chat.service";
 import type { ProductSearchResult } from "@/types/product";
 import { useAppSelector } from "@/lib/hooks";
-import { selectCartCount } from "@/lib/features/cart/cartSlice";
 
 type ChatMessage = ChatTurn & { id: number; products?: ProductSearchResult[]; orders?: ChatOrder[]; loginHref?: string; support?: ChatReply["support"] };
 
@@ -56,7 +55,6 @@ function OrderResultCard({ order }: { order: ChatOrder }) {
 
 export default function StoreChatWidget() {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-  const cartCount = useAppSelector(selectCartCount);
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
@@ -69,6 +67,12 @@ export default function StoreChatWidget() {
   useEffect(() => {
     if (open) scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, open, sending]);
+
+  useEffect(() => {
+    const openChat = () => setOpen(true);
+    window.addEventListener("open-store-chat", openChat);
+    return () => window.removeEventListener("open-store-chat", openChat);
+  }, []);
 
   const send = async (rawText: string) => {
     const text = rawText.trim();
@@ -129,7 +133,7 @@ export default function StoreChatWidget() {
   };
 
   return (
-    <div className={`fixed right-4 z-[80] flex flex-col items-end gap-3 md:right-6 ${cartCount > 0 ? "bottom-[calc(9.5rem+env(safe-area-inset-bottom))] md:bottom-24" : "bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-6"}`}>
+    <div className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-[80] flex flex-col items-end gap-3 md:bottom-6 md:right-6">
       {open && (
         <section aria-label="OneHaat shopping assistant" className="flex h-[min(68dvh,36rem)] w-[min(calc(100vw-2rem),24rem)] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/15 md:h-[min(74dvh,38rem)]">
           <header className="flex items-center justify-between bg-[var(--color-primary)] px-4 py-3 text-white">
