@@ -100,9 +100,9 @@ export default function FloatingContactButtons() {
         aria-controls="floating-contact-options"
         aria-expanded={expanded}
         onClick={() => setExpanded((current) => !current)}
-        className="flex h-14 min-w-40 items-center justify-between gap-3 rounded-full border border-slate-100 bg-white py-1 pl-4 pr-1 text-sm font-semibold text-slate-800 shadow-xl shadow-slate-900/15 transition hover:shadow-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
+        className={`flex h-14 items-center justify-between gap-3 rounded-full border border-slate-100 bg-white py-1 text-sm font-semibold text-slate-800 shadow-xl shadow-slate-900/15 transition hover:shadow-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 ${expanded ? "min-w-40 pl-4 pr-1" : "w-14 justify-center px-1"}`}
       >
-        <span>Contact</span>
+        <span className={expanded ? "" : "sr-only"}>Contact</span>
         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-900 text-white">
           {expanded ? <X className="h-5 w-5" aria-hidden="true" /> : <Headphones className="h-5 w-5" aria-hidden="true" />}
         </span>
