@@ -1,13 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { MessageCircle, Sparkles } from "lucide-react";
 
 export default function FloatingPartnerButton() {
-  const pathname = usePathname();
-  if (pathname === "/become-a-partner") return null;
-
   return (
     <Link
       href="#ask-us"

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Bot, LoaderCircle, MessageCircle, Send, Sparkles, X } from "lucide-react";
+import { Bot, LoaderCircle, MessageCircle, Send, X } from "lucide-react";
 import { ApiError } from "@/lib/api";
 import { getChatOrderStatus, sendChatMessage, type ChatOrder, type ChatReply, type ChatTurn } from "@/services/chat.service";
 import type { ProductSearchResult } from "@/types/product";
@@ -62,6 +62,7 @@ export default function StoreChatWidget() {
     { id: 1, role: "assistant", content: welcomeMessage },
   ]);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const widgetRef = useRef<HTMLDivElement>(null);
   const nextId = useRef(2);
 
   useEffect(() => {
@@ -73,6 +74,24 @@ export default function StoreChatWidget() {
     window.addEventListener("open-store-chat", openChat);
     return () => window.removeEventListener("open-store-chat", openChat);
   }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const closeOnOutsidePointer = (event: PointerEvent) => {
+      if (event.target instanceof Node && !widgetRef.current?.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOnOutsidePointer);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsidePointer);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open]);
 
   const send = async (rawText: string) => {
     const text = rawText.trim();
@@ -135,25 +154,25 @@ export default function StoreChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-[80] flex flex-col items-end gap-3 md:bottom-6 md:right-6">
+    <div ref={widgetRef} className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-[80] flex flex-col items-end gap-3 md:bottom-6 md:right-6">
       {open && (
-        <section aria-label="OneHaat shopping assistant" className="flex h-[min(68dvh,36rem)] w-[min(calc(100vw-2rem),24rem)] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/15 md:h-[min(74dvh,38rem)]">
-          <header className="flex items-center justify-between bg-[var(--color-primary)] px-4 py-3 text-white">
+        <section role="dialog" aria-modal="true" aria-label="OneHaat shopping assistant" className="flex h-[min(80dvh,44rem)] w-[min(calc(100vw-2rem),26rem)] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/20 md:h-[min(84dvh,48rem)]">
+          <header className="flex shrink-0 items-center justify-between border-b border-white/10 bg-[var(--color-primary)] px-4 py-4 text-white shadow-sm">
             <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15"><Bot className="h-5 w-5" /></span>
-              <div><h2 className="text-sm font-semibold">Shopping Assistant</h2><p className="mt-0.5 text-[11px] text-white/80">পণ্য খুঁজে দিতে প্রস্তুত</p></div>
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/20"><Bot className="h-5 w-5" /></span>
+              <div><h2 className="text-sm font-semibold tracking-wide">Shopping Assistant</h2><p className="mt-1 text-[11px] text-white/80">Find products or get personal support</p></div>
             </div>
-            <button type="button" onClick={() => setOpen(false)} aria-label="Close chat" className="rounded-lg p-2 transition hover:bg-white/10"><X className="h-5 w-5" /></button>
+            <button type="button" onClick={() => setOpen(false)} aria-label="Close chat" className="rounded-xl p-2.5 transition hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"><X className="h-5 w-5" /></button>
           </header>
 
-          <div ref={scrollRef} aria-live="polite" className="flex-1 space-y-4 overflow-y-auto bg-slate-50 p-3.5">
+          <div ref={scrollRef} aria-live="polite" aria-busy={sending} className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-slate-50/90 p-4">
             {messages.map((message) => (
               <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[90%] rounded-2xl px-3.5 py-2.5 ${message.role === "user" ? "rounded-br-md bg-[var(--color-primary)] text-white" : "rounded-bl-md border border-slate-200 bg-white text-slate-800"}`}>
+                <div className={`max-w-[92%] rounded-2xl px-4 py-3 shadow-sm ${message.role === "user" ? "rounded-br-md bg-[var(--color-primary)] text-white" : "rounded-bl-md border border-slate-200 bg-white text-slate-800"}`}>
                   <p className="whitespace-pre-wrap text-sm leading-6">{message.content}</p>
                   {message.details && <p className="mt-2 whitespace-pre-wrap text-xs leading-5 text-slate-600">{message.details}</p>}
                   {message.loginHref && <Link href={message.loginHref} className="mt-2 inline-flex rounded-lg bg-[var(--color-primary)] px-3 py-1.5 text-xs font-semibold text-white">Login to view orders</Link>}
-                  {message.support && <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3"><p className="text-xs leading-5 text-emerald-950">{message.support.message}</p><a href={message.support.whatsapp_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700"><MessageCircle className="h-4 w-4" />WhatsApp-এ যোগাযোগ · {message.support.phone}</a></div>}
+                  {message.support && <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3.5"><p className="text-xs leading-5 text-emerald-950">{message.support.message}</p><a href={message.support.whatsapp_url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"><MessageCircle className="h-4 w-4" />WhatsApp-এ যোগাযোগ করুন · {message.support.phone}</a></div>}
                   {message.products && message.products.length > 0 && <div className="mt-3 space-y-2">{message.products.map((product) => <ProductResultCard key={product.id} product={product} onNavigate={() => setOpen(false)} />)}</div>}
                   {message.categories && message.categories.length > 0 && <div className="mt-3 flex flex-wrap gap-2">{message.categories.map((category) => <Link key={category.id} href={category.url} onClick={() => setOpen(false)} className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-800 transition hover:bg-emerald-100">{category.name}</Link>)}</div>}
                   {message.orders && message.orders.length > 0 && <div className="mt-3 space-y-2">{message.orders.map((order) => <OrderResultCard key={order.order_number} order={order} />)}</div>}
@@ -161,21 +180,18 @@ export default function StoreChatWidget() {
               </div>
             ))}
             {messages.length === 1 && !sending && <div className="flex flex-wrap gap-2">{quickPrompts.map((prompt) => <button key={prompt} type="button" onClick={() => void send(prompt)} className="rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-xs font-medium text-emerald-800 transition hover:bg-emerald-50">{prompt}</button>)}</div>}
-            {sending && <div className="flex items-center gap-2 text-xs text-slate-500"><LoaderCircle className="h-4 w-4 animate-spin" />খুঁজে দেখছি…</div>}
+            {sending && <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs text-slate-500 shadow-sm"><LoaderCircle className="h-4 w-4 animate-spin text-emerald-700" />খুঁজে দেখছি…</div>}
           </div>
 
-          <form onSubmit={submit} className="flex items-center gap-2 border-t border-slate-200 bg-white p-3">
+          <form onSubmit={submit} className="flex shrink-0 items-center gap-2 border-t border-slate-200 bg-white p-3.5">
             <label htmlFor="store-chat-message" className="sr-only">আপনার message</label>
             <input id="store-chat-message" value={draft} onChange={(event) => setDraft(event.target.value)} maxLength={600} placeholder="পণ্য বা category লিখুন…" className="h-11 min-w-0 flex-1 rounded-xl border border-slate-200 px-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10" />
             <button type="submit" disabled={!draft.trim() || sending} aria-label="Send message" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary)] text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"><Send className="h-4 w-4" /></button>
           </form>
-          <p className="border-t border-slate-100 bg-white px-3 pb-2 text-center text-[10px] text-slate-400">পণ্যের তথ্য catalog থেকে আসে · ব্যক্তিগত তথ্য পাঠাবেন না</p>
+          <p className="shrink-0 border-t border-slate-100 bg-white px-3 pb-2 pt-1 text-center text-[10px] text-slate-400">পণ্যের তথ্য catalog থেকে আসে · ব্যক্তিগত তথ্য পাঠাবেন না</p>
         </section>
       )}
 
-      {!open && <button type="button" onClick={() => setOpen(true)} aria-label="Open shopping assistant" aria-expanded={false} className="flex h-14 items-center gap-2 rounded-full bg-[var(--color-primary)] px-4 text-white shadow-lg shadow-emerald-900/20 transition hover:-translate-y-0.5 hover:shadow-xl">
-        <span className="relative"><MessageCircle className="h-5 w-5" /><Sparkles className="absolute -right-1 -top-1 h-3 w-3 fill-white" /></span><span className="text-sm font-semibold">Ask us</span>
-      </button>}
     </div>
   );
 }
