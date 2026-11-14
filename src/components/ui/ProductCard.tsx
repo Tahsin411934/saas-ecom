@@ -147,13 +147,13 @@ export default function ProductCard({ product, viewMode = "grid" }: ProductCardP
 
   // Grid view (default)
   return (
-    <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-gray-100 bg-white p-2 transition-shadow duration-200 hover:shadow-md">
-      <div className="relative aspect-[1.15/1] overflow-hidden rounded-md bg-gray-50">
+    <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-gray-100 bg-white transition-shadow duration-200 hover:shadow-md">
+      <div className="relative aspect-square w-full overflow-hidden bg-gray-50">
         <Link href={`/product/${product.slug}`} onClick={handleProductClick} aria-label={`View ${product.name}`} className="absolute inset-0 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-emerald-600">
           {product.main_image ? (
             <Image src={product.main_image} alt={product.name} fill
               sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 225px"
-              className="object-contain p-1 transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+              className="object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
           ) : (
             <div className="flex h-full items-center justify-center text-gray-300" aria-hidden="true"><ShoppingCart className="h-10 w-10" /></div>
           )}
@@ -163,7 +163,7 @@ export default function ProductCard({ product, viewMode = "grid" }: ProductCardP
           <span className="pointer-events-none absolute left-1 top-1 z-10 rounded bg-rose-500 px-1.5 py-0.5 text-[10px] font-bold text-white">-{discountPercent}%</span>
         )}
       </div>
-      <div className="flex flex-1 flex-col pt-2">
+      <div className="flex flex-1 flex-col px-2 pb-2 pt-2">
         <Link href={`/product/${product.slug}`} onClick={handleProductClick} className="rounded-sm focus-visible:outline-2 focus-visible:outline-emerald-600">
           <h3 className="mb-1 min-h-8 text-xs font-medium leading-4 text-gray-900 line-clamp-2 transition-colors hover:text-emerald-700">{product.name}</h3>
         </Link>
