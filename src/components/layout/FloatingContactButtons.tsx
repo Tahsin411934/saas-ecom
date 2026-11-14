@@ -62,7 +62,7 @@ export default function FloatingContactButtons() {
   return (
     <div
       ref={containerRef}
-      className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-[70] flex flex-col items-end gap-2 md:bottom-6 md:right-6"
+      className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-[70] flex flex-col items-end gap-2 md:bottom-6 md:right-6 lg:bottom-24"
     >
       <div
         id="floating-contact-options"
