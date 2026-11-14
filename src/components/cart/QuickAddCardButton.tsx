@@ -1,6 +1,6 @@
 "use client";
 
-import QuickAddModal from "./QuickAddModal";
+import ProductCardActions from "@/components/ui/ProductCardActions";
 
 export interface QuickAddProduct {
   id: number;
@@ -37,7 +37,7 @@ export default function QuickAddCardButton({
       }}
       className={className}
     >
-      <QuickAddModal product={product} triggerLabel="Add to Cart" disabled={disabled} />
+      <ProductCardActions product={product} viewMode="grid" disabled={disabled} showQuickAdd />
     </div>
   );
 }
