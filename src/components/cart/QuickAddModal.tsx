@@ -1,10 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
-import ProductGalleryModal from "@/components/ui/ProductGalleryModal";
+import Image from "next/image";
 import { Loader2, Minus, Plus, ShoppingCart, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogTrigger,
@@ -63,9 +62,12 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
 
   useEffect(() => {
     if (!detail) return;
-    setSelectedVariant(detail.variants && detail.variants.length > 0 ? detail.variants[0] : null);
-    setSelectedColor(null);
-    setSelectedSize(null);
+    const initialVariant = detail.variants?.find((variant) => (variant.stock ?? 0) > 0 || variant.allow_backorder)
+      ?? detail.variants?.[0]
+      ?? null;
+    setSelectedVariant(initialVariant);
+    setSelectedColor(initialVariant?.attributes?.color ?? null);
+    setSelectedSize(initialVariant?.attributes?.size ?? null);
     setQuantity(Math.max(1, detail.minimum_order_quantity ?? 1));
   }, [detail]);
 
@@ -82,9 +84,14 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
 
   const price = selectedVariant?.sale_price ?? detail?.price_range?.min ?? product.price ?? 0;
   const comparePrice = selectedVariant?.compare_at_price ?? null;
-  const inStock = selectedVariant ? (selectedVariant.stock ?? 0) > 0 || selectedVariant.allow_backorder : true;
+  const inStock = selectedVariant
+    ? (selectedVariant.stock ?? 0) > 0 || selectedVariant.allow_backorder
+    : !detail?.variants?.length;
   const stockCount = selectedVariant?.stock ?? 0;
   const imageUrl = selectedVariant?.image ?? detail?.main_image ?? product.main_image;
+  const canAddToCart = Boolean(
+    detail && !loading && !error && inStock && (!detail.variants.length || selectedVariant)
+  );
 
   const attributeOptions = useMemo(() => {
     if (!detail) {
@@ -166,229 +173,121 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] overflow-x-hidden overflow-y-auto rounded-2xl p-0 sm:max-h-[calc(100dvh-3rem)] sm:w-[min(95vw,70rem)] sm:rounded-[2rem]">
-        <DialogHeader className="flex items-start justify-between gap-4 border-b border-gray-200 px-4 py-3 pr-12 sm:px-6 sm:py-4 sm:pr-16">
-          <div>
-            <DialogTitle>Quick Add To Cart</DialogTitle>
-            <p className="text-sm text-gray-500">Review variant options and stock before checkout.</p>
-          </div>
+      <DialogContent className="max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-md overflow-x-hidden overflow-y-auto rounded-xl border-0 bg-white p-0 shadow-2xl sm:max-h-[calc(100dvh-3rem)]">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Quick Add To Cart</DialogTitle>
         </DialogHeader>
-
         <DialogClose asChild>
-          <button aria-label="Close" className="absolute right-3 top-3 z-50 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/70 text-gray-600 shadow-sm hover:bg-white sm:right-4 sm:top-4 sm:h-10 sm:w-10">
-            <X className="h-4 w-4" />
+          <button aria-label="Close" className="absolute right-3 top-3 z-50 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white text-gray-800 shadow-sm hover:bg-gray-100">
+            <X className="h-5 w-5" />
           </button>
         </DialogClose>
 
-        <div className="grid min-w-0 gap-3 px-3 py-3 sm:gap-6 sm:px-6 sm:py-6 md:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
-          <div className="min-w-0 rounded-2xl border border-gray-200 bg-gray-50 p-2.5 sm:rounded-[1.5rem] sm:p-4">
-            {loading ? (
-              <div className="flex h-72 items-center justify-center">
-                <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
+        <div className="min-w-0 space-y-5 p-5 pt-7">
+          <div className="flex min-w-0 items-center gap-4 pr-7">
+            <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden bg-gray-100">
+              {imageUrl ? (
+                <Image src={imageUrl} alt={product.name} fill sizes="72px" className="object-cover" />
+              ) : (
+                <div className="flex h-full items-center justify-center text-gray-400"><ShoppingCart className="h-7 w-7" /></div>
+              )}
+            </div>
+            <div className="min-w-0 space-y-1">
+              <h2 className="break-words text-lg font-normal leading-snug text-gray-900">{product.name}</h2>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-lg font-normal text-gray-900">৳{price.toLocaleString("en-BD")}</span>
+                {comparePrice ? <span className="text-sm text-gray-400 line-through">৳{comparePrice.toLocaleString("en-BD")}</span> : null}
               </div>
-            ) : (
-              <div className="relative overflow-hidden rounded-[1.25rem] bg-white shadow-sm">
-                {(() => {
-                  const allImages = detail?.gallery && detail.gallery.length > 0
-                    ? detail.gallery.map((g) => ({ id: g.id, url: g.url, alt_text: g.alt_text }))
-                    : imageUrl
-                      ? [{ id: 0, url: imageUrl, alt_text: product.name }]
-                      : [];
-
-                  if (allImages.length > 0) {
-                    return (
-                      <div className="mx-auto w-full max-w-[320px] md:mx-0 md:max-w-none md:w-[320px]">
-                        <ProductGalleryModal images={allImages} mainHeight="h-52 sm:h-60 md:h-64 lg:h-72" />
-                      </div>
-                    );
-                  }
-
-                  return (
-                  <div className="flex h-72 items-center justify-center text-gray-400">
-                    <ShoppingCart className="h-12 w-12" />
-                  </div>
-                  );
-                })()}
-              </div>
-            )}
+            </div>
           </div>
 
-          <div className="min-w-0 space-y-4 sm:space-y-5">
-            <div className="space-y-3">
-              <p className="text-sm text-gray-500">{detail?.brand?.name ?? "Product"}</p>
-              <h2 className="break-words text-xl font-bold text-gray-900 sm:text-2xl">{product.name}</h2>
-            </div>
+          {loading ? <div className="flex items-center gap-2 text-sm text-gray-500"><Loader2 className="h-4 w-4 animate-spin" />Loading options…</div> : null}
+          {error ? <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
+          {!inStock && detail && !loading ? <p className="text-sm text-red-600">This option is currently out of stock.</p> : null}
 
-            <div className="flex min-w-0 flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:rounded-[1.5rem] sm:p-5">
-              <div className="flex items-center gap-3">
-                <div className="text-3xl font-semibold text-gray-900">৳{price.toLocaleString("en-BD")}</div>
-                {comparePrice ? (
-                  <div className="text-sm text-gray-400 line-through">৳{comparePrice.toLocaleString("en-BD")}</div>
-                ) : null}
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3">
-                <Badge className={inStock ? "bg-[#ECFDF5] text-[#166534]" : "bg-[#FEF3F2] text-[#B91C1C]"}>
-                  {inStock ? "In Stock" : "Out of Stock"}
-                </Badge>
-                {selectedVariant && selectedVariant.track_inventory && stockCount >= 0 ? (
-                  <span className="text-sm text-gray-500">{stockCount} units available</span>
-                ) : null}
-              </div>
-
-              {detail?.variants && detail.variants.length > 0 ? (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-gray-900">Select Variant:</h3>
-                    <span className="text-xs text-gray-500">{detail.variants.length} options</span>
+          {detail?.variants && detail.variants.length > 0 ? (
+            <div className="space-y-5">
+              {attributeOptions.colors.length > 0 ? (
+                <section>
+                  <p className="mb-3 text-sm text-gray-900">Color: <span className="font-medium">{selectedColor ?? "Select a color"}</span></p>
+                  <div className="flex flex-wrap gap-3">
+                    {attributeOptions.colors.map((color) => {
+                      const option = detail.attribute_options?.colors.find((item) => item.value === color);
+                      const available = option ? option.available : detail.variants.some((variant) => variant.attributes?.color === color && ((variant.stock ?? 0) > 0 || variant.allow_backorder));
+                      const hex = attributeOptions.colorMap[color];
+                      return (
+                        <button
+                          key={color}
+                          type="button"
+                          title={color}
+                          aria-label={`Color ${color}`}
+                          aria-pressed={selectedColor === color}
+                          onClick={() => { setSelectedColor(color); setQuantity(minimumOrderQuantity); }}
+                          disabled={!available}
+                          className={`h-9 w-9 rounded-full border border-gray-400 p-1 ${selectedColor === color ? "ring-1 ring-gray-900 ring-offset-2" : ""} ${!available ? "cursor-not-allowed opacity-35" : ""}`}
+                        >
+                          <span className="block h-full w-full rounded-full border border-black/10" style={{ backgroundColor: hex ? `#${hex}` : "#e5e7eb" }} />
+                        </button>
+                      );
+                    })}
                   </div>
-                  <div>
-                    {/* Colors */}
-                    {(() => {
-                      const colors = attributeOptions.colors;
-                      if (colors.length > 0) {
-                        return (
-                          <div className="mb-3">
-                            <div className="text-sm font-medium text-gray-700">Color</div>
-                            <div className="mt-2 flex flex-wrap gap-2">
-                              {colors.map((c) => {
-                                const option = detail?.attribute_options?.colors.find((opt) => opt.value === c);
-                                const hasStock = option ? option.available : detail?.variants.some((v) => v.attributes?.color === c && ((v.stock ?? 0) > 0 || v.allow_backorder));
-                                const hex = attributeOptions.colorMap[c];
-                                return (
-                                  <button
-                                    key={c}
-                                    type="button"
-                                    onClick={() => { setSelectedColor(c); setQuantity(1); }}
-                                    disabled={!hasStock}
-                                    className={`flex min-w-0 max-w-full items-center gap-2 rounded-lg border px-2.5 py-2 transition-all sm:px-3 ${selectedColor === c ? 'ring-2 ring-[var(--color-primary)] border-[var(--color-primary)]' : 'border-gray-200'} ${!hasStock ? 'opacity-40 cursor-not-allowed' : ''}`}
-                                  >
-                                    <span className={`inline-flex h-4 w-4 shrink-0 rounded-full border ${hex ? 'border-gray-200' : 'border-gray-300'}`} style={{ backgroundColor: hex ? `#${hex}` : undefined }} />
-                                    <span className="break-words text-left text-xs sm:text-sm">{c}</span>
-                                    {option?.available_count != null ? (
-                                      <span className="text-[11px] text-gray-500">({option.available_count})</span>
-                                    ) : null}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        );
-                      }
-                      return null;
-                    })()}
-
-                    {/* Sizes */}
-                    {(() => {
-                      const sizes = attributeOptions.sizes;
-                      if (sizes.length > 0) {
-                        return (
-                          <div className="mb-3">
-                            <div className="text-sm font-medium text-gray-700">Size</div>
-                            <div className="mt-2 flex flex-wrap gap-2">
-                              {sizes.map((s) => {
-                                const option = detail?.attribute_options?.sizes.find((opt) => opt.value === s);
-                                const hasStock = option ? option.available && (!selectedColor || detail?.variants.some((v) => v.attributes?.size === s && v.attributes?.color === selectedColor && ((v.stock ?? 0) > 0 || v.allow_backorder))) : detail?.variants.some((v) => v.attributes?.size === s && ((v.stock ?? 0) > 0 || v.allow_backorder) && (selectedColor ? v.attributes?.color === selectedColor : true));
-                                return (
-                                  <button
-                                    key={s}
-                                    type="button"
-                                    onClick={() => { setSelectedSize(s); setQuantity(1); }}
-                                    disabled={!hasStock}
-                                    className={`max-w-full rounded-lg border px-3 py-2 text-sm ${selectedSize === s ? 'ring-2 ring-[var(--color-primary)] border-[var(--color-primary)]' : 'border-gray-200'} ${!hasStock ? 'opacity-40 cursor-not-allowed' : ''}`}
-                                  >
-                                    {s}
-                                    {option?.available_count != null ? (
-                                      <span className="ml-1 text-[11px] text-gray-500">({option.available_count})</span>
-                                    ) : null}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        );
-                      }
-                      return null;
-                    })()}
-
-                    {/* Fallback variant grid if no structured attrs */}
-                    {(() => {
-                      const hasStructured = detail.variants.some((v) => v.attributes?.color || v.attributes?.size);
-                      if (!hasStructured) {
-                        return (
-                          <div className="grid gap-2 sm:grid-cols-2">
-                            {detail.variants.map((variant) => {
-                              const active = selectedVariant?.id === variant.id;
-                              return (
-                                <button
-                                  key={variant.id}
-                                  type="button"
-                                  onClick={() => setSelectedVariant(variant)}
-                                  className={`rounded-2xl border px-4 py-3 text-left transition-all ${
-                                    active
-                                      ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-[var(--color-primary-dark)]'
-                                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                                  }`}
-                                >
-                                  <div className="font-medium">{variant.name}</div>
-                                  <div className="text-sm text-gray-500">৳{variant.sale_price.toLocaleString('en-BD')}</div>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        );
-                      }
-                      return null;
-                    })()}
-                  </div>
-                </div>
+                </section>
               ) : null}
 
-              <div className="grid gap-3 sm:grid-cols-[120px_minmax(0,1fr)]">
-                <div className="flex items-center rounded-2xl border border-gray-200 bg-gray-50 p-1">
-                  <button
-                    type="button"
-                    onClick={() => setQuantity(Math.max(minimumOrderQuantity, quantity - 1))}
-                    className="flex h-10 w-10 items-center justify-center text-gray-600 hover:bg-gray-100 rounded-2xl"
-                    disabled={!inStock}
-                    aria-label="Decrease quantity"
-                  >
-                    <Minus className="h-4 w-4" />
-                  </button>
-                  <span className="mx-4 text-sm font-semibold text-gray-900">{quantity}</span>
-                  <button
-                    type="button"
-                    onClick={() => setQuantity(Math.min(Math.max(99, minimumOrderQuantity), quantity + 1))}
-                    className="flex h-10 w-10 items-center justify-center text-gray-600 hover:bg-gray-100 rounded-2xl"
-                    disabled={!inStock}
-                    aria-label="Increase quantity"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </button>
+              {attributeOptions.sizes.length > 0 ? (
+                <section>
+                  <p className="mb-3 text-sm text-gray-900">Size: <span className="font-medium">{selectedSize ?? "Select a size"}</span></p>
+                  <div className="flex flex-wrap gap-2">
+                    {attributeOptions.sizes.map((size) => {
+                      const option = detail.attribute_options?.sizes.find((item) => item.value === size);
+                      const available = option ? option.available && (!selectedColor || detail.variants.some((variant) => variant.attributes?.size === size && variant.attributes?.color === selectedColor && ((variant.stock ?? 0) > 0 || variant.allow_backorder))) : detail.variants.some((variant) => variant.attributes?.size === size && ((variant.stock ?? 0) > 0 || variant.allow_backorder) && (!selectedColor || variant.attributes?.color === selectedColor));
+                      return (
+                        <button
+                          key={size}
+                          type="button"
+                          aria-pressed={selectedSize === size}
+                          onClick={() => { setSelectedSize(size); setQuantity(minimumOrderQuantity); }}
+                          disabled={!available}
+                          className={`min-w-[44px] border px-3 py-2 text-sm transition-colors ${selectedSize === size ? "border-gray-900 bg-gray-900 text-white" : "border-gray-200 bg-white text-gray-900 hover:border-gray-500"} ${!available ? "cursor-not-allowed opacity-35" : ""}`}
+                        >{size}</button>
+                      );
+                    })}
+                  </div>
+                </section>
+              ) : null}
+
+              {!detail.variants.some((variant) => variant.attributes?.color || variant.attributes?.size) ? (
+                <div className="flex flex-wrap gap-2">
+                  {detail.variants.map((variant) => (
+                    <button key={variant.id} type="button" onClick={() => setSelectedVariant(variant)} className={`border px-3 py-2 text-sm ${selectedVariant?.id === variant.id ? "border-gray-900 bg-gray-900 text-white" : "border-gray-200 text-gray-800"}`}>
+                      {variant.name}
+                    </button>
+                  ))}
                 </div>
-                {minimumOrderQuantity > 1 && (
-                  <p className="text-xs text-gray-500 sm:self-center">
-                    Minimum order: {minimumOrderQuantity}{detail?.unit?.short_name ? ` ${detail.unit.short_name}` : detail?.unit?.name ? ` ${detail.unit.name}` : ""}
-                  </p>
-                )}
-
-                <Button
-                  onClick={handleAddToCart}
-                  disabled={!inStock || loading}
-                  className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary)]"
-                >
-                  <ShoppingCart className="h-4 w-4" />
-                  Add to Cart
-                </Button>
-              </div>
+              ) : null}
             </div>
+          ) : null}
 
-            {error ? (
-              <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                {error}
-              </div>
-            ) : null}
-          </div>
+          <section>
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <p className="text-sm font-medium text-gray-900">Quantity</p>
+              {minimumOrderQuantity > 1 ? <p className="text-xs text-gray-500">Minimum: {minimumOrderQuantity}{detail?.unit?.short_name ? ` ${detail.unit.short_name}` : detail?.unit?.name ? ` ${detail.unit.name}` : ""}</p> : null}
+            </div>
+            <div className="inline-flex items-center bg-gray-100">
+              <button type="button" onClick={() => setQuantity(Math.max(minimumOrderQuantity, quantity - 1))} className="flex h-11 w-11 items-center justify-center text-gray-700 hover:bg-gray-200" disabled={!inStock} aria-label="Decrease quantity"><Minus className="h-4 w-4" /></button>
+              <span className="min-w-[52px] text-center text-sm font-medium text-gray-900">{quantity}</span>
+              <button type="button" onClick={() => setQuantity(Math.min(selectedVariant?.track_inventory && !selectedVariant.allow_backorder ? Math.max(minimumOrderQuantity, stockCount) : Math.max(99, minimumOrderQuantity), quantity + 1))} className="flex h-11 w-11 items-center justify-center text-gray-700 hover:bg-gray-200" disabled={!inStock} aria-label="Increase quantity"><Plus className="h-4 w-4" /></button>
+            </div>
+          </section>
+
+          <Button
+            onClick={handleAddToCart}
+            disabled={!canAddToCart}
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-none bg-gray-900 text-sm font-semibold uppercase text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            Add to Cart · ৳{price.toLocaleString("en-BD")}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
