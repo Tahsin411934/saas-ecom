@@ -40,8 +40,8 @@ export default async function ContentPageRoute({ params }: Props) {
 
   const settings = await settingsService.getAll().catch(() => null);
   const contact = {
-    email: settings?.data?.email || "support@onehaatbd.com",
-    phone: settings?.data?.phone || "+880 123-456-7890",
+    email: settings?.data?.email || "",
+    phone: settings?.data?.phone || "",
     address: settings?.data?.address || "Dhaka, Bangladesh",
   };
 

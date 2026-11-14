@@ -116,8 +116,8 @@ export default async function Footer() {
 
   const socialLinks = getSocialLinks(settings);
   const siteName = settings?.site_name || "OneHaatbd";
-  const phone = settings?.phone || "+880 123-456-7890";
-  const email = settings?.email || "support@onehaatbd.com";
+  const phone = settings?.phone || "";
+  const email = settings?.email || "";
   const address = settings?.address || "123 Commerce Ave, Dhaka, Bangladesh";
 
   return (
@@ -145,18 +145,18 @@ export default async function Footer() {
                 <MapPin className="h-4 w-4 shrink-0 text-[var(--color-primary)]" />
                 <span>{address}</span>
               </div>
-              <div className="flex items-center gap-3 text-sm text-gray-400">
+              {phone && <div className="flex items-center gap-3 text-sm text-gray-400">
                 <Phone className="h-4 w-4 shrink-0 text-[var(--color-primary)]" />
-                <a href={`tel:${phone}`} className="hover:text-[var(--color-primary)] transition-colors">
+                <a href={`tel:${phone.replace(/[^\d+]/g, "")}`} className="hover:text-[var(--color-primary)] transition-colors">
                   {phone}
                 </a>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-gray-400">
+              </div>}
+              {email && <div className="flex items-center gap-3 text-sm text-gray-400">
                 <Mail className="h-4 w-4 shrink-0 text-[var(--color-primary)]" />
                 <a href={`mailto:${email}`} className="hover:text-[var(--color-primary)] transition-colors">
                   {email}
                 </a>
-              </div>
+              </div>}
             </div>
 
             {/* Social Links */}

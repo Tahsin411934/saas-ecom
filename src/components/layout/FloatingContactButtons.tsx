@@ -4,8 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { Headphones, MessageCircle, Phone, X } from "lucide-react";
 import { settingsService } from "@/services/settings.service";
 
-const fallbackNumber = "01856533432";
-
 function internationalNumber(value: string) {
   const digits = value.replace(/\D/g, "");
   if (digits.startsWith("880")) return digits;
@@ -17,7 +15,7 @@ const actionClass = "flex h-12 min-w-40 items-center justify-between gap-3 round
 const iconClass = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white";
 
 export default function FloatingContactButtons() {
-  const [numbers, setNumbers] = useState({ phone: fallbackNumber, whatsapp: fallbackNumber });
+  const [numbers, setNumbers] = useState({ phone: "", whatsapp: "" });
   const [expanded, setExpanded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -27,11 +25,11 @@ export default function FloatingContactButtons() {
       if (!active) return;
       const values = settings.data ?? {};
       setNumbers({
-        phone: values.phone || values.whatsapp_number || fallbackNumber,
-        whatsapp: values.whatsapp_number || values.phone || fallbackNumber,
+        phone: values.phone || "",
+        whatsapp: values.whatsapp_number || "",
       });
     }).catch(() => {
-      // Keep the support number if public settings are temporarily unavailable.
+      // Keep contact actions hidden if public settings are unavailable.
     });
 
     return () => { active = false; };
@@ -53,6 +51,8 @@ export default function FloatingContactButtons() {
     };
   }, [expanded]);
 
+  const whatsappNumber = numbers.whatsapp || numbers.phone;
+  const phoneNumber = numbers.phone || numbers.whatsapp;
   const whatsappMessage = encodeURIComponent("Hello, I need help with a product or order from OneHaat.");
   const openChat = () => {
     setExpanded(false);
@@ -70,8 +70,8 @@ export default function FloatingContactButtons() {
         aria-hidden={!expanded}
         className={`flex flex-col items-end gap-2 transition-all duration-200 motion-reduce:transition-none ${expanded ? "translate-y-0 opacity-100" : "pointer-events-none invisible translate-y-2 opacity-0"}`}
       >
-        <a
-          href={`https://wa.me/${internationalNumber(numbers.whatsapp)}?text=${whatsappMessage}`}
+        {whatsappNumber && <a
+          href={`https://wa.me/${internationalNumber(whatsappNumber)}?text=${whatsappMessage}`}
           target="_blank"
           rel="noopener noreferrer"
           className={actionClass}
@@ -79,15 +79,15 @@ export default function FloatingContactButtons() {
         >
           <span>WhatsApp</span>
           <span className={`${iconClass} bg-[#168c55]`}><MessageCircle className="h-5 w-5" aria-hidden="true" /></span>
-        </a>
-        <a
-          href={`tel:+${internationalNumber(numbers.phone)}`}
+        </a>}
+        {phoneNumber && <a
+          href={`tel:+${internationalNumber(phoneNumber)}`}
           className={actionClass}
           onClick={() => setExpanded(false)}
         >
           <span>Call us</span>
           <span className={`${iconClass} bg-[var(--color-primary)]`}><Phone className="h-5 w-5" aria-hidden="true" /></span>
-        </a>
+        </a>}
         <button type="button" className={actionClass} onClick={openChat}>
           <span>Live Chat</span>
           <span className={`${iconClass} bg-emerald-900`}><MessageCircle className="h-5 w-5" aria-hidden="true" /></span>

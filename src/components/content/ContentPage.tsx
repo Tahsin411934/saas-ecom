@@ -3,8 +3,8 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import type { ContentPage as ContentPageData } from "@/lib/content-pages";
 
 interface ContactDetails {
-  email: string;
-  phone: string;
+  email?: string;
+  phone?: string;
   address: string;
 }
 
@@ -49,12 +49,12 @@ export default function ContentPage({
           <h2 id="contact-heading" className="text-lg font-semibold text-slate-900">Need more help?</h2>
           <p className="mt-2 text-sm leading-6 text-slate-600">Contact our customer service team and include your order number when your question is about a purchase.</p>
           <div className="mt-4 grid gap-3 text-sm text-slate-700 sm:grid-cols-3">
-            <a href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`} className="flex items-start gap-2 hover:text-[var(--color-primary)]">
+            {contact.phone && <a href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`} className="flex items-start gap-2 hover:text-[var(--color-primary)]">
               <Phone className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" /><span>{contact.phone}</span>
-            </a>
-            <a href={`mailto:${contact.email}`} className="flex items-start gap-2 hover:text-[var(--color-primary)]">
+            </a>}
+            {contact.email && <a href={`mailto:${contact.email}`} className="flex items-start gap-2 hover:text-[var(--color-primary)]">
               <Mail className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" /><span className="break-all">{contact.email}</span>
-            </a>
+            </a>}
             <div className="flex items-start gap-2">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" /><span>{contact.address}</span>
             </div>

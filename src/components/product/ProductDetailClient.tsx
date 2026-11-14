@@ -69,7 +69,7 @@ export default function ProductDetailClient({
   const [reviewBody, setReviewBody] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
   const [updatingWishlist, setUpdatingWishlist] = useState(false);
-  const [contactNumbers, setContactNumbers] = useState({ phone: "01856533432", whatsapp: "01856533432" });
+  const [contactNumbers, setContactNumbers] = useState({ phone: "", whatsapp: "" });
 
   useEffect(() => {
     let active = true;
@@ -77,11 +77,11 @@ export default function ProductDetailClient({
       if (!active) return;
       const values = settings.data ?? {};
       setContactNumbers({
-        phone: values.phone || values.whatsapp_number || "01856533432",
-        whatsapp: values.whatsapp_number || values.phone || "01856533432",
+        phone: values.phone || "",
+        whatsapp: values.whatsapp_number || "",
       });
     }).catch(() => {
-      // Keep the configured support number as a fallback when settings are unavailable.
+      // Keep contact actions hidden if public settings are unavailable.
     });
     return () => { active = false; };
   }, []);
@@ -93,8 +93,10 @@ export default function ProductDetailClient({
     return digits;
   };
   const whatsappMessage = `Hello, I want to order ${product.name}${selectedVariant?.name ? ` (${selectedVariant.name})` : ""}${selectedOption?.color_name ? `, color: ${selectedOption.color_name}` : ""}. Quantity: ${quantity}. Product: ${typeof window !== "undefined" ? window.location.href : ""}`;
-  const whatsappHref = `https://wa.me/${toInternationalNumber(contactNumbers.whatsapp)}?text=${encodeURIComponent(whatsappMessage)}`;
-  const phoneHref = `tel:+${toInternationalNumber(contactNumbers.phone)}`;
+  const whatsappNumber = contactNumbers.whatsapp || contactNumbers.phone;
+  const phoneNumber = contactNumbers.phone || contactNumbers.whatsapp;
+  const whatsappHref = `https://wa.me/${toInternationalNumber(whatsappNumber)}?text=${encodeURIComponent(whatsappMessage)}`;
+  const phoneHref = `tel:+${toInternationalNumber(phoneNumber)}`;
 
   // The selected color option is the sellable item when a variant has colors.
   const basePrice =
@@ -608,8 +610,8 @@ export default function ProductDetailClient({
 
               </div>
 
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_3rem]">
-                <a
+              <div className={`grid grid-cols-1 gap-3 ${whatsappNumber && phoneNumber ? "sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_3rem]" : "sm:grid-cols-[minmax(0,1fr)_3rem]"}`}>
+                {whatsappNumber && <a
                   href={whatsappHref}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -618,15 +620,15 @@ export default function ProductDetailClient({
                 >
                   <MessageCircle className="h-5 w-5" />
                   WhatsApp-এ অর্ডার করুন
-                </a>
-                <a
+                </a>}
+                {phoneNumber && <a
                   href={phoneHref}
                   aria-label={`Call about ${product.name}`}
                   className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-800 transition-colors hover:bg-gray-50"
                 >
                   <Phone className="h-5 w-5 text-[var(--color-primary)]" />
                   কল করে যোগাযোগ করুন
-                </a>
+                </a>}
                 <Button
                   variant="outline"
                   size="icon"
