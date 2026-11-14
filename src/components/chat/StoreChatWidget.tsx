@@ -7,10 +7,15 @@ import Link from "next/link";
 import { Bot, LoaderCircle, MessageCircle, Send, X } from "lucide-react";
 import { ApiError } from "@/lib/api";
 import { getChatOrderStatus, sendChatMessage, type ChatOrder, type ChatReply, type ChatTurn } from "@/services/chat.service";
+import { settingsService } from "@/services/settings.service";
 import type { ProductSearchResult } from "@/types/product";
 import { useAppSelector } from "@/lib/hooks";
 
 type ChatMessage = ChatTurn & { id: number; products?: ProductSearchResult[]; details?: string | null; categories?: ChatReply["categories"]; orders?: ChatOrder[]; loginHref?: string; support?: ChatReply["support"] };
+
+function cleanChatText(value: string): string {
+  return value.replace(/&#(?:x20|32);|&nbsp;/gi, " ");
+}
 
 const welcomeMessage = "হ্যালো! কী ধরনের পণ্য খুঁজছেন? পণ্যের নাম বা category লিখুন—আমি catalog থেকে খুঁজে দিচ্ছি।";
 const quickPrompts = ["সব jewellery দেখাও", "চুড়ি খুঁজে দাও", "শাড়ি দেখাও"];
@@ -61,9 +66,20 @@ export default function StoreChatWidget() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     { id: 1, role: "assistant", content: welcomeMessage },
   ]);
+  const [whatsappNumber, setWhatsappNumber] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const widgetRef = useRef<HTMLDivElement>(null);
   const nextId = useRef(2);
+
+  useEffect(() => {
+    let active = true;
+    settingsService.getAll().then((settings) => {
+      if (active) setWhatsappNumber(settings.data?.whatsapp_number || settings.data?.phone || "");
+    }).catch(() => {
+      // Keep chat usable if public contact settings are temporarily unavailable.
+    });
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     if (open) scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -132,9 +148,9 @@ export default function StoreChatWidget() {
       setMessages((current) => [...current, {
         id: nextId.current++,
         role: "assistant",
-        content: response.reply,
+        content: cleanChatText(response.reply),
         products: response.products,
-        details: response.details,
+        details: response.details ? cleanChatText(response.details) : null,
         categories: response.categories,
         support: response.support,
       }]);
@@ -142,7 +158,14 @@ export default function StoreChatWidget() {
       const message = error instanceof ApiError && error.status === 429
         ? "একটু পরে আবার চেষ্টা করুন—এই মুহূর্তে অনেকগুলো request এসেছে।"
         : "দুঃখিত, এখন উত্তর দিতে পারছি না। আবার চেষ্টা করুন বা search box ব্যবহার করুন।";
-      setMessages((current) => [...current, { id: nextId.current++, role: "assistant", content: message }]);
+      const digits = whatsappNumber.replace(/\D/g, "");
+      const internationalNumber = digits.startsWith("880") ? digits : digits.startsWith("0") ? `88${digits}` : digits;
+      const support = internationalNumber ? {
+        message: "সহায়তার জন্য WhatsApp-এ আমাদের সাথে যোগাযোগ করুন।",
+        whatsapp_url: `https://wa.me/${internationalNumber}?text=${encodeURIComponent("Hello, I need help finding a product from OneHaat.")}`,
+        phone: whatsappNumber,
+      } : undefined;
+      setMessages((current) => [...current, { id: nextId.current++, role: "assistant", content: message, support }]);
     } finally {
       setSending(false);
     }

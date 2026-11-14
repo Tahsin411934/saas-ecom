@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import ProductGalleryModal from "@/components/ui/ProductGalleryModal";
 import { Loader2, Minus, Plus, ShoppingCart, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +17,7 @@ import { productDetailService, type ProductDetailData, type ProductVariant } fro
 import { useAppDispatch } from "@/lib/hooks";
 import { addToCart, addToCartWithQuantity } from "@/lib/features/cart/cartSlice";
 import { trackAddToCart } from "@/lib/gtm";
+import { toast } from "react-toastify";
 
 interface QuickAddModalProps {
   product: {
@@ -34,7 +34,6 @@ interface QuickAddModalProps {
 
 export default function QuickAddModal({ product, triggerLabel = "Add to Cart", disabled = false, triggerClassName }: QuickAddModalProps) {
   const dispatch = useAppDispatch();
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [detail, setDetail] = useState<ProductDetailData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -152,7 +151,7 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
     });
 
     setOpen(false);
-    router.push("/cart");
+    toast.success(`${product.name} successfully added to cart.`);
   };
 
   return (
