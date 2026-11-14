@@ -110,7 +110,7 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
                           className="inline-flex h-9 items-center gap-2 rounded-lg px-5 text-xs font-semibold shadow-sm transition-all hover:opacity-90 md:h-10 md:text-sm lg:px-6"
                           style={{
                             backgroundColor: banner.primary_btn_color || 'var(--color-primary)',
-                            color: banner.primary_btn_text_color || 'var(--color-primary-foreground)',
+                            color: banner.primary_btn_text_color || 'var(--color-primary-text)',
                           }}
                           aria-label={`Shop now: ${banner.primary_btn}`}
                         >

@@ -27,11 +27,13 @@ body {
 }
 
 /* Keep text readable on theme-colored buttons and primary-to-shade gradients. */
+[class~="bg-primary"],
 [class~="bg-[var(--color-primary)]"],
 [class*="from-[var(--color-primary)]"] {
-  color: var(--color-primary-foreground, #ffffff);
+  color: var(--color-primary-text, #ffffff);
 }
 
+[class*="hover:bg-primary"]:hover,
 [class~="hover:bg-[var(--color-primary)]"]:hover {
   background-color: var(--color-primary-hover);
 }

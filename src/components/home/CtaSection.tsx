@@ -79,8 +79,8 @@ export default function CtaSection({ cta }: CtaSectionProps) {
         href={cta.button_link}
         className="inline-flex items-center px-6 py-3 rounded-lg font-semibold text-sm transition-all hover:opacity-90 hover:scale-105"
         style={{
-          backgroundColor: cta.button_color,
-          color: cta.button_text_color,
+          backgroundColor: cta.button_color || "var(--color-primary)",
+          color: cta.button_text_color || "var(--color-primary-text)",
         }}
         aria-label={cta.button_text}
       >
