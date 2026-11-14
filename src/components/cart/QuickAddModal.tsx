@@ -327,7 +327,7 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
                                   onClick={() => setSelectedVariant(variant)}
                                   className={`rounded-2xl border px-4 py-3 text-left transition-all ${
                                     active
-                                      ? 'border-[var(--color-primary)] bg-[#ECFDF5] text-[#134E4A]'
+                                      ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-[var(--color-primary-dark)]'
                                       : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                                   }`}
                                 >

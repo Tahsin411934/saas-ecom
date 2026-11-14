@@ -68,7 +68,7 @@ function WishlistButton({ product }: { product: ProductCardItem }) {
   return (
     <button type="button" onClick={handleToggle} aria-pressed={wishlisted}
       aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-      className="absolute right-1 top-1 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 shadow-sm transition-colors hover:bg-rose-50 focus-visible:outline-2 focus-visible:outline-emerald-600">
+      className="absolute right-1 top-1 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 shadow-sm transition-colors hover:bg-[var(--color-primary-soft)] focus-visible:outline-2 focus-visible:outline-[var(--color-primary)]">
       <Heart className={`h-4 w-4 ${wishlisted ? "fill-red-500 text-red-500" : "text-gray-600"}`} />
     </button>
   );

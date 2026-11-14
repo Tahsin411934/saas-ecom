@@ -54,7 +54,7 @@ export default function CampaignSection({ campaigns }: { campaigns: Campaign[] }
 
                 <Link
                   href={`/campaigns/${campaign.slug}`}
-                  className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white"
+                  className="rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-primary-hover)]"
                 >
                   {campaign.button_text}
                 </Link>
