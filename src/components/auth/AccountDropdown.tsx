@@ -52,7 +52,7 @@ export default function AccountDropdown() {
             <DropdownMenuItem asChild>
               <Link
                 href="/profile"
-                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium hover:bg-[#F0FDF4] hover:text-[var(--color-primary)]"
+                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium hover:bg-[var(--color-primary-soft)] hover:text-[var(--color-primary)]"
               >
                 <User className="h-4 w-4" />
                 <span>My Profile</span>
@@ -61,7 +61,7 @@ export default function AccountDropdown() {
             <DropdownMenuItem asChild>
               <Link
                 href="/orders"
-                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium hover:bg-[#F0FDF4] hover:text-[var(--color-primary)]"
+                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium hover:bg-[var(--color-primary-soft)] hover:text-[var(--color-primary)]"
               >
                 <Truck className="h-4 w-4" />
                 <span>My Orders</span>
@@ -70,7 +70,7 @@ export default function AccountDropdown() {
             <DropdownMenuItem asChild>
               <Link
                 href="/dashboard"
-                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium hover:bg-[#F0FDF4] hover:text-[var(--color-primary)]"
+                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium hover:bg-[var(--color-primary-soft)] hover:text-[var(--color-primary)]"
               >
                 <LayoutDashboard className="h-4 w-4" />
                 <span>Dashboard</span>
@@ -92,7 +92,7 @@ export default function AccountDropdown() {
             <DropdownMenuItem asChild>
               <Link
                 href="/login"
-                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-[var(--color-primary)] hover:bg-[#F0FDF4]"
+                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-[var(--color-primary)] hover:bg-[var(--color-primary-soft)]"
               >
                 <LogIn className="h-4 w-4" />
                 <span>Sign In</span>
@@ -101,7 +101,7 @@ export default function AccountDropdown() {
             <DropdownMenuItem asChild>
               <Link
                 href="/register"
-                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium hover:bg-[#F0FDF4] hover:text-[var(--color-primary)]"
+                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium hover:bg-[var(--color-primary-soft)] hover:text-[var(--color-primary)]"
               >
                 <Shield className="h-4 w-4" />
                 <span>Create Account</span>

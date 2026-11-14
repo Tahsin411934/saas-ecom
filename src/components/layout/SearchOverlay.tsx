@@ -279,8 +279,8 @@ export default function SearchOverlay({
                   onPointerDown={(e) => e.stopPropagation()}
                   className={`w-full text-left flex items-center gap-3 px-4 py-3 transition-colors ${
                     index === selectedIndex
-                      ? "bg-[#F0FDF4]"
-                      : "hover:bg-[#F0FDF4]"
+                      ? "bg-[var(--color-primary-soft)]"
+                      : "hover:bg-[var(--color-primary-soft)]"
                   }`}
                 >
                   <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100">
@@ -332,7 +332,7 @@ export default function SearchOverlay({
               <Link
                 href={`/search?q=${encodeURIComponent(debouncedQuery)}`}
                 onClick={onClose}
-                className="flex items-center justify-center gap-2 border-t border-gray-100 px-4 py-3 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[#F0FDF4]"
+                className="flex items-center justify-center gap-2 border-t border-gray-100 px-4 py-3 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary-soft)]"
               >
                 <Search className="h-4 w-4" />
                 <span>View all {results.length} results</span>

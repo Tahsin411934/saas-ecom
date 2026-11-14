@@ -11,7 +11,7 @@ function internationalNumber(value: string) {
   return digits;
 }
 
-const actionClass = "flex h-12 min-w-40 items-center justify-between gap-3 rounded-full border border-slate-100 bg-white py-1 pl-4 pr-1 text-sm font-semibold text-slate-800 shadow-lg shadow-slate-900/10 transition hover:-translate-x-0.5 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2";
+const actionClass = "flex h-12 min-w-40 items-center justify-between gap-3 rounded-full border border-slate-100 bg-white py-1 pl-4 pr-1 text-sm font-semibold text-slate-800 shadow-lg shadow-slate-900/10 transition hover:-translate-x-0.5 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2";
 const iconClass = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white";
 
 export default function FloatingContactButtons() {
@@ -90,7 +90,7 @@ export default function FloatingContactButtons() {
         </a>}
         <button type="button" className={actionClass} onClick={openChat}>
           <span>Live Chat</span>
-          <span className={`${iconClass} bg-emerald-900`}><MessageCircle className="h-5 w-5" aria-hidden="true" /></span>
+          <span className={`${iconClass} bg-[var(--color-primary-dark)]`}><MessageCircle className="h-5 w-5" aria-hidden="true" /></span>
         </button>
       </div>
 
@@ -100,10 +100,10 @@ export default function FloatingContactButtons() {
         aria-controls="floating-contact-options"
         aria-expanded={expanded}
         onClick={() => setExpanded((current) => !current)}
-        className={`flex h-14 items-center justify-between gap-3 rounded-full border border-slate-100 bg-white py-1 text-sm font-semibold text-slate-800 shadow-xl shadow-slate-900/15 transition hover:shadow-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 ${expanded ? "min-w-40 pl-4 pr-1" : "w-14 justify-center px-1"}`}
+        className={`flex h-14 items-center justify-between gap-3 rounded-full border border-slate-100 bg-white py-1 text-sm font-semibold text-slate-800 shadow-xl shadow-slate-900/15 transition hover:shadow-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 ${expanded ? "min-w-40 pl-4 pr-1" : "w-14 justify-center px-1"}`}
       >
         <span className={expanded ? "" : "sr-only"}>Contact</span>
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-900 text-white">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-dark)] text-white">
           {expanded ? <X className="h-5 w-5" aria-hidden="true" /> : <Headphones className="h-5 w-5" aria-hidden="true" />}
         </span>
       </button>

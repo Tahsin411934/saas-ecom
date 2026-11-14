@@ -24,7 +24,7 @@ function formatPrice(value: number | null | undefined, unit?: ProductSearchResul
 
 function ProductResultCard({ product, onNavigate }: { product: ProductSearchResult; onNavigate: () => void }) {
   return (
-    <Link href={product.url || `/product/${product.slug}`} onClick={onNavigate} className="flex gap-3 rounded-xl border border-slate-200 bg-white p-2.5 transition hover:border-emerald-300 hover:shadow-sm">
+    <Link href={product.url || `/product/${product.slug}`} onClick={onNavigate} className="flex gap-3 rounded-xl border border-slate-200 bg-white p-2.5 transition hover:border-[var(--color-primary-muted)] hover:shadow-sm">
       <div className="relative h-[4.5rem] w-[4.5rem] shrink-0 overflow-hidden rounded-lg bg-slate-100">
         {product.main_image ? (
           <Image src={product.main_image} alt={product.name} fill sizes="72px" className="object-cover" />
@@ -32,7 +32,7 @@ function ProductResultCard({ product, onNavigate }: { product: ProductSearchResu
       </div>
       <div className="min-w-0 flex-1 py-0.5">
         <p className="line-clamp-2 text-xs font-semibold leading-5 text-slate-900">{product.name}</p>
-        <p className="mt-1 text-xs font-bold text-emerald-700">{formatPrice(product.price, product.unit)}</p>
+        <p className="mt-1 text-xs font-bold text-[var(--color-primary-dark)]">{formatPrice(product.price, product.unit)}</p>
         {(product.available_colors?.length || product.available_sizes?.length) ? (
           <p className="mt-1 line-clamp-1 text-[10px] text-slate-500">
             {[product.available_colors?.length ? `রং: ${product.available_colors.join(", ")}` : "", product.available_sizes?.length ? `সাইজ: ${product.available_sizes.join(", ")}` : ""].filter(Boolean).join(" · ")}
@@ -172,20 +172,20 @@ export default function StoreChatWidget() {
                   <p className="whitespace-pre-wrap text-sm leading-6">{message.content}</p>
                   {message.details && <p className="mt-2 whitespace-pre-wrap text-xs leading-5 text-slate-600">{message.details}</p>}
                   {message.loginHref && <Link href={message.loginHref} className="mt-2 inline-flex rounded-lg bg-[var(--color-primary)] px-3 py-1.5 text-xs font-semibold text-white">Login to view orders</Link>}
-                  {message.support && <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3.5"><p className="text-xs leading-5 text-emerald-950">{message.support.message}</p><a href={message.support.whatsapp_url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"><MessageCircle className="h-4 w-4" />WhatsApp-এ যোগাযোগ করুন · {message.support.phone}</a></div>}
+                  {message.support && <div className="mt-3 rounded-2xl border border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] p-3.5"><p className="text-xs leading-5 text-slate-800">{message.support.message}</p><a href={message.support.whatsapp_url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[var(--color-primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"><MessageCircle className="h-4 w-4" />WhatsApp-এ যোগাযোগ করুন · {message.support.phone}</a></div>}
                   {message.products && message.products.length > 0 && <div className="mt-3 space-y-2">{message.products.map((product) => <ProductResultCard key={product.id} product={product} onNavigate={() => setOpen(false)} />)}</div>}
-                  {message.categories && message.categories.length > 0 && <div className="mt-3 flex flex-wrap gap-2">{message.categories.map((category) => <Link key={category.id} href={category.url} onClick={() => setOpen(false)} className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-800 transition hover:bg-emerald-100">{category.name}</Link>)}</div>}
+                  {message.categories && message.categories.length > 0 && <div className="mt-3 flex flex-wrap gap-2">{message.categories.map((category) => <Link key={category.id} href={category.url} onClick={() => setOpen(false)} className="rounded-full border border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] px-3 py-1.5 text-xs font-medium text-[var(--color-primary-dark)] transition hover:bg-[var(--color-primary-subtle)]">{category.name}</Link>)}</div>}
                   {message.orders && message.orders.length > 0 && <div className="mt-3 space-y-2">{message.orders.map((order) => <OrderResultCard key={order.order_number} order={order} />)}</div>}
                 </div>
               </div>
             ))}
-            {messages.length === 1 && !sending && <div className="flex flex-wrap gap-2">{quickPrompts.map((prompt) => <button key={prompt} type="button" onClick={() => void send(prompt)} className="rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-xs font-medium text-emerald-800 transition hover:bg-emerald-50">{prompt}</button>)}</div>}
-            {sending && <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs text-slate-500 shadow-sm"><LoaderCircle className="h-4 w-4 animate-spin text-emerald-700" />খুঁজে দেখছি…</div>}
+            {messages.length === 1 && !sending && <div className="flex flex-wrap gap-2">{quickPrompts.map((prompt) => <button key={prompt} type="button" onClick={() => void send(prompt)} className="rounded-full border border-[var(--color-primary-muted)] bg-white px-3 py-1.5 text-xs font-medium text-[var(--color-primary-dark)] transition hover:bg-[var(--color-primary-soft)]">{prompt}</button>)}</div>}
+            {sending && <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs text-slate-500 shadow-sm"><LoaderCircle className="h-4 w-4 animate-spin text-[var(--color-primary)]" />খুঁজে দেখছি…</div>}
           </div>
 
           <form onSubmit={submit} className="flex shrink-0 items-center gap-2 border-t border-slate-200 bg-white p-3.5">
             <label htmlFor="store-chat-message" className="sr-only">আপনার message</label>
-            <input id="store-chat-message" value={draft} onChange={(event) => setDraft(event.target.value)} maxLength={600} placeholder="পণ্য বা category লিখুন…" className="h-11 min-w-0 flex-1 rounded-xl border border-slate-200 px-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10" />
+            <input id="store-chat-message" value={draft} onChange={(event) => setDraft(event.target.value)} maxLength={600} placeholder="পণ্য বা category লিখুন…" className="h-11 min-w-0 flex-1 rounded-xl border border-slate-200 px-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10" />
             <button type="submit" disabled={!draft.trim() || sending} aria-label="Send message" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary)] text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"><Send className="h-4 w-4" /></button>
           </form>
           <p className="shrink-0 border-t border-slate-100 bg-white px-3 pb-2 pt-1 text-center text-[10px] text-slate-400">পণ্যের তথ্য catalog থেকে আসে · ব্যক্তিগত তথ্য পাঠাবেন না</p>

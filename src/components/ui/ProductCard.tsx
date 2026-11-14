@@ -165,7 +165,7 @@ export default function ProductCard({ product, viewMode = "grid" }: ProductCardP
       </div>
       <div className="flex flex-1 flex-col px-2 pb-2 pt-2">
         <Link href={`/product/${product.slug}`} onClick={handleProductClick} className="rounded-sm focus-visible:outline-2 focus-visible:outline-emerald-600">
-          <h3 className="mb-1 min-h-8 text-xs font-medium leading-4 text-gray-900 line-clamp-2 transition-colors hover:text-emerald-700">{product.name}</h3>
+          <h3 className="mb-1 min-h-8 text-xs font-medium leading-4 text-gray-900 line-clamp-2 transition-colors hover:text-[var(--color-primary-dark)]">{product.name}</h3>
         </Link>
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
           <span className={`text-sm font-bold ${hasDiscount ? "text-rose-500" : "text-gray-900"}`}>৳{displayPrice?.toLocaleString("en-BD")}</span>

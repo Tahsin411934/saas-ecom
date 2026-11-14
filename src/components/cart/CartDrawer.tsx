@@ -143,7 +143,7 @@ export default function CartDrawer() {
                 totalValue: total,
               });
             }}
-              className="block w-full text-center py-3 border-2 border-[var(--color-primary)] text-[var(--color-primary)] rounded-xl font-semibold text-sm hover:bg-[#F0FDF4]">
+              className="block w-full text-center py-3 border-2 border-[var(--color-primary)] text-[var(--color-primary)] rounded-xl font-semibold text-sm hover:bg-[var(--color-primary-soft)]">
               Checkout
             </Link>
           </div>

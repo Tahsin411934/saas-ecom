@@ -62,7 +62,7 @@ export default function RequestProductModal({
           {/* Header */}
           <div className="flex items-center justify-between border-b px-6 py-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F0FDF4]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-primary-soft)]">
                 <Package className="h-5 w-5 text-[var(--color-primary)]" />
               </div>
               <div>

@@ -44,7 +44,7 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
           <CarouselContent>
             {banners.map((banner, index) => (
               <CarouselItem key={banner.id}>
-                <div className="relative flex min-h-[220px] items-center overflow-hidden rounded-xl bg-green-50 md:aspect-[3.5/1] md:min-h-[280px] md:rounded-2xl">
+                <div className="relative flex min-h-[220px] items-center overflow-hidden rounded-xl bg-[var(--color-primary-soft)] md:aspect-[3.5/1] md:min-h-[280px] md:rounded-2xl">
                   {/* Full Background Image */}
                   {banner.banner_image && (
                     <Image
@@ -65,7 +65,7 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
                   <div className="relative z-10 flex w-full flex-col items-start gap-3 px-8 py-6 md:gap-3 md:px-14 md:py-8 lg:px-20">
                     {/* Small Tag */}
                     {banner.smtag && (
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-emerald-950 md:text-xs">
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[var(--color-primary-dark)] md:text-xs">
                         {banner.smtag}
                       </span>
                     )}
@@ -109,8 +109,8 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
                           href={banner.primary_btn_url || '/shop'}
                           className="inline-flex h-9 items-center gap-2 rounded-lg px-5 text-xs font-semibold shadow-sm transition-all hover:opacity-90 md:h-10 md:text-sm lg:px-6"
                           style={{
-                            backgroundColor: banner.primary_btn_color || '#1A462F',
-                            color: banner.primary_btn_text_color || '#ffffff',
+                            backgroundColor: banner.primary_btn_color || 'var(--color-primary)',
+                            color: banner.primary_btn_text_color || 'var(--color-primary-foreground)',
                           }}
                           aria-label={`Shop now: ${banner.primary_btn}`}
                         >

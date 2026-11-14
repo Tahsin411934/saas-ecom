@@ -26,6 +26,16 @@ body {
   font-family: var(--font-inter), sans-serif;  
 }
 
+/* Keep text readable on theme-colored buttons and primary-to-shade gradients. */
+[class~="bg-[var(--color-primary)]"],
+[class*="from-[var(--color-primary)]"] {
+  color: var(--color-primary-foreground, #ffffff);
+}
+
+[class~="hover:bg-[var(--color-primary)]"]:hover {
+  background-color: var(--color-primary-hover);
+}
+
 /* Use a pointer only for elements that perform an action or navigation. */
 a[href],
 button:not(:disabled),

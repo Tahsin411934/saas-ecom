@@ -236,7 +236,7 @@ export default function MainHeader({ serverCategories, serverSettings, serverUse
                           key={cat.slug}
                           href={`/category/${cat.slug}`}
                           onClick={() => setMobileMenuOpen(false)}
-                          className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-[#F0FDF4] hover:text-[var(--color-primary)]"
+                          className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-[var(--color-primary-soft)] hover:text-[var(--color-primary)]"
                         >
                           {cat.name}
                         </Link>
@@ -272,7 +272,7 @@ export default function MainHeader({ serverCategories, serverSettings, serverUse
                     </>
                   ) : (
                     <>
-                      <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[var(--color-primary)] hover:bg-[#F0FDF4]">
+                      <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[var(--color-primary)] hover:bg-[var(--color-primary-soft)]">
                         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" /></svg>
                         Sign In
                       </Link>

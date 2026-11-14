@@ -31,10 +31,26 @@ const SITE_NAME = "OneHaat.bd";
 const SITE_DESCRIPTION =
   "OneHaat.bd is Bangladesh's trusted online shopping destination. Discover top-quality products at unbeatable prices with fast, reliable delivery across Bangladesh.";
 
+function normalizePrimaryColor(value: string | null | undefined): string {
+  const match = value?.trim().match(/^#([\da-f]{3}|[\da-f]{6})$/i);
+  if (!match) return "#22C55E";
+  const hex = match[1];
+  return hex.length === 3
+    ? `#${hex.split("").map((digit) => digit + digit).join("")}`
+    : `#${hex}`;
+}
+
+function primaryForeground(color: string): string {
+  const channels = color.slice(1).match(/.{2}/g)?.map((channel) => parseInt(channel, 16) / 255) ?? [0.13, 0.77, 0.37];
+  const [red = 0.13, green = 0.77, blue = 0.37] = channels;
+  const linear = (channel: number) => channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+  const luminance = linear(red) * 0.2126 + linear(green) * 0.7152 + linear(blue) * 0.0722;
+  return luminance > 0.179 ? "#111827" : "#ffffff";
+}
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "var(--color-primary)",
 };
 
 export const metadata: Metadata = {
@@ -106,7 +122,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  let primaryColor = "var(--color-primary)";
+  let primaryColor = "#22C55E";
   let gtmHeaderCode: string | null = null;
   let gtmBodyCode: string | null = null;
   let siteName = SITE_NAME;
@@ -125,7 +141,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     const settingsRes = await settingsService.getAll();
     if (settingsRes.success && settingsRes.data) {
       const s = settingsRes.data;
-      if (s.primary_color) primaryColor = s.primary_color;
+      if (s.primary_color) primaryColor = normalizePrimaryColor(s.primary_color);
       if (s.site_name) siteName = s.site_name;
       if (s.site_description) siteDescription = s.site_description;
       if (s.site_logo) siteLogo = s.site_logo;
@@ -226,7 +242,15 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         />
       </head>
       <body suppressHydrationWarning className="min-h-full flex flex-col bg-white font-sans m-0 p-0"
-        style={{ "--color-primary": primaryColor } as React.CSSProperties}>
+        style={{
+          "--color-primary": primaryColor,
+          "--color-primary-foreground": primaryForeground(primaryColor),
+          "--color-primary-dark": `color-mix(in srgb, ${primaryColor} 78%, #000000)`,
+          "--color-primary-hover": `color-mix(in srgb, ${primaryColor} 88%, #000000)`,
+          "--color-primary-muted": `color-mix(in srgb, ${primaryColor} 28%, #ffffff)`,
+          "--color-primary-subtle": `color-mix(in srgb, ${primaryColor} 12%, #ffffff)`,
+          "--color-primary-soft": `color-mix(in srgb, ${primaryColor} 6%, #ffffff)`,
+        } as React.CSSProperties}>
         {gtmBodyCode ? <div dangerouslySetInnerHTML={{ __html: gtmBodyCode }} /> : null}
         <StoreProvider>
           <a href="#main-content"

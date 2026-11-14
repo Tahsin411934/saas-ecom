@@ -105,7 +105,7 @@ export default function NavigationBar({
                   <DropdownMenuItem key={cat.slug} asChild>
                     <Link
                       href={`/category/${cat.slug}`}
-                      className="flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-[#374151] transition-colors hover:bg-[#F0FDF4] hover:text-[var(--color-primary)]"
+                      className="flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-[#374151] transition-colors hover:bg-[var(--color-primary-soft)] hover:text-[var(--color-primary)]"
                       role="menuitem"
                     >
                     <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gray-100 overflow-hidden" aria-hidden="true">
@@ -120,7 +120,7 @@ export default function NavigationBar({
                     <DropdownMenuItem key={name} asChild>
                       <Link
                         href={`/category/${name.toLowerCase().replace(/ & /g, "-").replace(/ /g, "-")}`}
-                        className="flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-[#374151] transition-colors hover:bg-[#F0FDF4] hover:text-[var(--color-primary)]"
+                        className="flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-[#374151] transition-colors hover:bg-[var(--color-primary-soft)] hover:text-[var(--color-primary)]"
                         role="menuitem"
                       >
                         <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gray-100 text-xs text-gray-500" aria-hidden="true">
@@ -135,7 +135,7 @@ export default function NavigationBar({
             <DropdownMenuItem asChild>
               <Link
                 href="/categories"
-                className="flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold text-[var(--color-primary)] transition-colors hover:bg-[#F0FDF4]"
+                className="flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary-soft)]"
                 role="menuitem"
               >
                 <Grid3X3 className="h-4 w-4" aria-hidden="true" />
@@ -181,7 +181,7 @@ export default function NavigationBar({
                     <Link
                       key={child.id}
                       href={`/subnavbar/${child.slug}`}
-                      className="flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-[#374151] transition-colors hover:bg-[#F0FDF4] hover:text-[var(--color-primary)]"
+                      className="flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-[#374151] transition-colors hover:bg-[var(--color-primary-soft)] hover:text-[var(--color-primary)]"
                     >
                       {child.icon && (
                         <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gray-100 text-xs text-gray-500" aria-hidden="true">
@@ -214,19 +214,19 @@ export default function NavigationBar({
         >
           <Link
             href="/order-status"
-            className="flex cursor-pointer items-center rounded-md px-3 py-2 text-sm font-medium text-[#374151] transition-colors hover:bg-[#F0FDF4] hover:text-[var(--color-primary)]"
+            className="flex cursor-pointer items-center rounded-md px-3 py-2 text-sm font-medium text-[#374151] transition-colors hover:bg-[var(--color-primary-soft)] hover:text-[var(--color-primary)]"
           >
             Order Status
           </Link>
           <Link
             href="/shipping-info"
-            className="flex cursor-pointer items-center rounded-md px-3 py-2 text-sm font-medium text-[#374151] transition-colors hover:bg-[#F0FDF4] hover:text-[var(--color-primary)]"
+            className="flex cursor-pointer items-center rounded-md px-3 py-2 text-sm font-medium text-[#374151] transition-colors hover:bg-[var(--color-primary-soft)] hover:text-[var(--color-primary)]"
           >
             Shipping Info
           </Link>
           <Link
             href="/returns"
-            className="flex cursor-pointer items-center rounded-md px-3 py-2 text-sm font-medium text-[#374151] transition-colors hover:bg-[#F0FDF4] hover:text-[var(--color-primary)]"
+            className="flex cursor-pointer items-center rounded-md px-3 py-2 text-sm font-medium text-[#374151] transition-colors hover:bg-[var(--color-primary-soft)] hover:text-[var(--color-primary)]"
           >
             Returns
           </Link>

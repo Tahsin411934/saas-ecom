@@ -277,7 +277,7 @@ export default function CtaSection({ cta }: CtaSectionProps) {
               </>
             ) : (
               <div className="absolute inset-0" style={{
-                background: `linear-gradient(135deg, ${cta.background_color || '#1e1b4b'}, ${cta.button_color || '#312e81'})`
+                background: `linear-gradient(135deg, ${cta.background_color || 'var(--color-primary-dark)'}, ${cta.button_color || 'var(--color-primary)'})`
               }} />
             )}
             <div

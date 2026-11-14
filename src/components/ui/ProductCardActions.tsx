@@ -29,7 +29,7 @@ export default function ProductCardActions({ product, viewMode, disabled = false
         triggerLabel="Add to Cart"
         disabled={disabled}
         triggerClassName={viewMode === "grid"
-          ? "h-8 w-full rounded-md bg-gradient-to-r from-emerald-600 to-teal-500 px-2 text-[11px] font-semibold text-white shadow-none transition-colors hover:from-emerald-700 hover:to-teal-600"
+          ? "h-8 w-full rounded-md bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-dark)] px-2 text-[11px] font-semibold text-white shadow-none transition-colors hover:from-[var(--color-primary-hover)] hover:to-[var(--color-primary)]"
           : undefined}
       />
     );
