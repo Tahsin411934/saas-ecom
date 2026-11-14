@@ -283,7 +283,7 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
           <Button
             onClick={handleAddToCart}
             disabled={!canAddToCart}
-            className="flex h-11 w-full items-center justify-center gap-2 rounded-none bg-gray-900 text-sm font-semibold uppercase text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-none bg-[var(--color-primary)] text-sm font-semibold uppercase text-[var(--color-primary-text)] hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Add to Cart · ৳{price.toLocaleString("en-BD")}
