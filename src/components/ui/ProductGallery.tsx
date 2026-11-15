@@ -26,7 +26,7 @@ interface ZoomState {
 }
 
 function useImageZoom(zoomFactor = 2.5) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLButtonElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const [zoom, setZoom] = useState<ZoomState>({
     show: false,
@@ -48,7 +48,7 @@ function useImageZoom(zoomFactor = 2.5) {
   }, []);
 
   const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
+    (e: React.MouseEvent<HTMLButtonElement>) => {
       const rect = containerRef.current?.getBoundingClientRect();
       if (!rect) return;
       const x = ((e.clientX - rect.left) / rect.width) * 100;
