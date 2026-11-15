@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Package, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Expand, Package, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -117,18 +117,23 @@ function MainImageViewer({
   src,
   alt,
   priority,
+  onOpenPreview,
 }: {
   src: string;
   alt: string;
   priority?: boolean;
+  onOpenPreview: () => void;
 }) {
   const { containerRef, imageRef, zoom, zoomFactor, handlers } = useImageZoom(2.5);
 
   return (
-    <div
+    <button
+      type="button"
       ref={containerRef}
-      className="relative aspect-square bg-white rounded-xl overflow-hidden border border-gray-100 cursor-crosshair select-none"
+      className="group relative block w-full aspect-square bg-white rounded-xl overflow-hidden border border-gray-100 cursor-zoom-in select-none text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
       {...handlers}
+      onClick={onOpenPreview}
+      aria-label="Open product image preview"
     >
       <Image
         ref={imageRef}
@@ -167,7 +172,11 @@ function MainImageViewer({
           }}
         />
       )}
-    </div>
+      <span className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-black/65 px-3 py-2 text-xs font-medium text-white opacity-100 shadow transition sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-visible:opacity-100">
+        <Expand className="h-3.5 w-3.5" />
+        Click to enlarge
+      </span>
+    </button>
   );
 }
 
@@ -303,6 +312,7 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
           src={current.url}
           alt={current.alt_text || `Product image ${activeIndex + 1}`}
           priority={activeIndex === 0}
+          onOpenPreview={() => setIsLightboxOpen(true)}
         />
       </div>
 
