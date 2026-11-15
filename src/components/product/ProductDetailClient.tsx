@@ -42,6 +42,7 @@ import {
   trackAddToCart,
   trackAddToWishlist,
 } from "@/lib/gtm";
+import { getVariantLabel, isProductVariantAvailable, isVariantOptionAvailable } from "@/lib/product-variant-availability";
 
 interface ProductDetailClientProps {
   product: ProductDetailData;
@@ -53,13 +54,12 @@ export default function ProductDetailClient({
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const unitLabel = product.unit?.short_name || product.unit?.name;
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
-    product.variants && product.variants.length > 0 ? product.variants[0] : null,
-  );
-  const initialVariant = product.variants?.[0] ?? null;
-  const initialOption = initialVariant?.options?.[0] ?? null;
-  const [selectedColor, setSelectedColor] = useState<string | null>(initialOption?.color_name ?? null);
-  const [selectedSize, setSelectedSize] = useState<string | null>(initialVariant?.attributes?.size ?? initialVariant?.name ?? null);
+  const initialVariant = product.variants?.find(isProductVariantAvailable) ?? product.variants?.[0] ?? null;
+  const initialOption = initialVariant?.options?.find((option) => isVariantOptionAvailable(initialVariant, option))
+    ?? initialVariant?.options?.[0]
+    ?? null;
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(initialVariant);
+  const [selectedSize, setSelectedSize] = useState<string | null>(initialVariant ? getVariantLabel(initialVariant) : null);
   const [selectedOption, setSelectedOption] = useState<VariantOption | null>(initialOption);
   const minimumOrderQuantity = Math.max(1, product.minimum_order_quantity ?? 1);
   const [quantity, setQuantity] = useState(minimumOrderQuantity);
@@ -133,7 +133,7 @@ export default function ProductDetailClient({
   const hasSale = comparePrice !== null && comparePrice > currentPrice;
   const stockCount = selectedOption?.stock ?? selectedVariant?.stock ?? 0;
   const inStock = selectedVariant
-    ? (selectedOption ? stockCount > 0 : stockCount > 0) || selectedVariant.allow_backorder
+    ? isVariantOptionAvailable(selectedVariant, selectedOption)
     : false;
 
   const isWishlisted = useAppSelector(selectIsInWishlist(product.id));
@@ -162,20 +162,17 @@ export default function ProductDetailClient({
     const defaultVariant = product.variants?.[0] ?? null;
     if (!selectedVariant && defaultVariant) {
       setSelectedVariant(defaultVariant);
-      setSelectedSize(defaultVariant.attributes?.size ?? defaultVariant.name);
-      const firstOption = defaultVariant.options?.[0] ?? null;
+      setSelectedSize(getVariantLabel(defaultVariant));
+      const firstOption = defaultVariant.options?.find((option) => isVariantOptionAvailable(defaultVariant, option))
+        ?? defaultVariant.options?.[0]
+        ?? null;
       setSelectedOption(firstOption);
-      setSelectedColor(firstOption?.color_name ?? null);
     }
   }, [selectedSize, product.variants]);
 
   const handleVariantOptionClick = (option: VariantOption) => {
     setSelectedOption(option);
     setQuantity(minimumOrderQuantity);
-    // Update color if option has color_name
-    if (option.color_name) {
-      setSelectedColor(option.color_name);
-    }
   };
 
   const variantOptions = selectedVariant?.options ?? [];
@@ -183,6 +180,9 @@ export default function ProductDetailClient({
   // Keep both selectors always visible
 
   const allImages = useMemo(() => {
+    if (selectedOption?.image_url) {
+      return [{ id: `option-${selectedOption.id}`, url: selectedOption.image_url, alt_text: product.name }];
+    }
     if (selectedVariant?.image) {
       return [{ id: `variant-${selectedVariant.id}`, url: selectedVariant.image, alt_text: product.name }];
     }
@@ -193,47 +193,7 @@ export default function ProductDetailClient({
       return [{ id: 0, url: product.main_image, alt_text: product.name, is_main: true, sort_order: 0 }];
     }
     return [];
-  }, [product.gallery, product.main_image, product.name, selectedVariant?.image, selectedVariant?.id]);
-
-  const attributeOptions = useMemo(() => {
-    // Prefer server-provided attribute_options when available
-    if (product.attribute_options) {
-      const colorMap: Record<string, string | undefined> = {};
-      const colors = product.attribute_options.colors.map((c) => {
-        if (c.hex) colorMap[c.value] = c.hex.replace(/^#/, '');
-        return c.value;
-      });
-      const sizes = product.attribute_options.sizes.map((s) => s.value);
-      return { colors, sizes, colorMap };
-    }
-
-    const sizes = new Set<string>();
-    product.variants?.forEach((v) => {
-      // Check attributes.size first, then fallback to variant name
-      if (v.attributes?.size) {
-        sizes.add(v.attributes.size);
-      } else if (v.name) {
-        // Match common size patterns: S, M, L, XL, XXL, XXXL, XS, or numeric sizes like 28, 30, 32
-        // Use lookbehind/lookahead to match sizes even when preceded/followed by spaces or hyphens
-        const sizeMatch = v.name.match(/(?:^|[\s\-])(X?S|M|L|XL|XXL|XXXL|\d{1,2}(?:\.\d)?)(?:[\s\-]|$)/i);
-        if (sizeMatch) {
-          sizes.add(sizeMatch[1]);
-        }
-      }
-    });
-    
-    // If no sizes found from attributes, try to extract from variant options or use variant names
-    if (sizes.size === 0 && product.variants && product.variants.length > 0) {
-      // Check if variants have different names that could be sizes
-      const variantNames = product.variants.map(v => v.name).filter(Boolean);
-      // If all variants have the same name, use that as a single "size" option
-      if (variantNames.length > 0 && variantNames.every(name => name === variantNames[0])) {
-        sizes.add(variantNames[0]);
-      }
-    }
-    
-    return { colors: [], sizes: Array.from(sizes), colorMap: {} };
-  }, [product.variants, product.attribute_options]);
+  }, [product.gallery, product.main_image, product.name, selectedOption?.id, selectedOption?.image_url, selectedVariant?.image, selectedVariant?.id]);
 
   const handleAddToCart = () => {
     dispatch(
@@ -481,30 +441,31 @@ export default function ProductDetailClient({
                     <div className="text-sm font-medium text-gray-700">Size / Variant</div>
                     <div className="flex gap-2 mt-2">
                       {product.variants.map((v) => {
-                        const variantLabel = v.name || `Variant ${v.id}`;
-                        const isSelected = selectedSize === variantLabel || selectedVariant?.id === v.id;
-                        const variantHasStock = v.options?.length
-                          ? v.options.some((option) => (option.stock ?? 0) > 0)
-                          : (v.stock ?? 0) > 0;
+                        const variantLabel = getVariantLabel(v);
+                        const isSelected = selectedVariant?.id === v.id;
+                        const variantHasStock = isProductVariantAvailable(v);
                         return (
-                          <button
-                            key={v.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedVariant(v);
-                              setSelectedSize(v.attributes?.size ?? variantLabel);
-                              setSelectedOption(v.options?.[0] ?? null);
-                              setSelectedColor(v.options?.[0]?.color_name ?? null);
-                              setQuantity(1);
-                            }}
-                            disabled={!variantHasStock && !v.allow_backorder}
-                            className={`px-3 py-2 rounded-lg text-sm border ${isSelected ? 'ring-2 ring-[var(--color-primary)] border-[var(--color-primary)]' : 'border-gray-200'} ${!variantHasStock && !v.allow_backorder ? 'opacity-40 cursor-not-allowed' : ''}`}
-                          >
-                            {variantLabel}
-                            {variantHasStock && (
-                              <span className="ml-1 text-[11px] text-orange-500">Available</span>
-                            )}
-                          </button>
+                          <span key={v.id} title={`${variantLabel}${variantHasStock ? "" : " — Out of stock"}`}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedVariant(v);
+                                setSelectedSize(variantLabel);
+                                setSelectedOption(v.options?.find((option) => isVariantOptionAvailable(v, option))
+                                  ?? v.options?.[0]
+                                  ?? null);
+                                setQuantity(minimumOrderQuantity);
+                              }}
+                              disabled={!variantHasStock}
+                              aria-label={`${variantLabel}${variantHasStock ? "" : ", Out of stock"}`}
+                              className={`px-3 py-2 rounded-lg text-sm border ${isSelected ? 'ring-2 ring-[var(--color-primary)] border-[var(--color-primary)]' : 'border-gray-200'} ${!variantHasStock ? 'opacity-40 cursor-not-allowed' : ''}`}
+                            >
+                              {variantLabel}
+                              {variantHasStock && (
+                                <span className="ml-1 text-[11px] text-orange-500">Available</span>
+                              )}
+                            </button>
+                          </span>
                         );
                       })}
                     </div>
@@ -512,21 +473,24 @@ export default function ProductDetailClient({
 
                    {/* Color Options from variant_options table (per selected variant) - ALWAYS VISIBLE */}
                    <div className="mb-3">
-                     <div className="text-sm font-medium text-gray-700 mb-2">Available Colors</div>
+                    <div className="text-sm font-medium text-gray-700 mb-2">Available Colors{selectedSize ? ` for ${selectedSize}` : ""}</div>
                      {variantOptions.length > 0 ? (
                        <div className="flex flex-wrap gap-3">
-                         {variantOptions.map((opt) => (
+                         {variantOptions.map((opt) => {
+                           const optionAvailable = selectedVariant ? isVariantOptionAvailable(selectedVariant, opt) : false;
+                           const optionTitle = `${opt.color_name}${optionAvailable ? "" : " — Out of stock"}`;
+                           return (
+                           <span key={opt.id} title={optionTitle} className="inline-flex">
                            <button
-                             key={opt.id}
                              type="button"
                              onClick={() => handleVariantOptionClick(opt)}
-                             disabled={(opt.stock ?? 0) <= 0 && !selectedVariant?.allow_backorder}
+                             disabled={!optionAvailable}
+                             aria-label={`${opt.color_name}${optionAvailable ? "" : ", Out of stock"}`}
                              className={`flex flex-col items-center gap-1 p-2 rounded-lg border transition-all ${
                                selectedOption?.id === opt.id
                                  ? 'ring-2 ring-[var(--color-primary)] border-[var(--color-primary)]'
                                  : 'border-gray-200 hover:border-gray-300'
-                             } ${(opt.stock ?? 0) <= 0 && !selectedVariant?.allow_backorder ? 'opacity-40 cursor-not-allowed' : ''}`}
-                             title={opt.color_name}
+                             } ${!optionAvailable ? 'opacity-40 cursor-not-allowed' : ''}`}
                            >
                              <span
                                className="inline-block w-8 h-8 rounded-full border border-gray-200"
@@ -538,7 +502,9 @@ export default function ProductDetailClient({
                                <span className="text-[9px] font-semibold text-red-500">-{opt.discount_percent}%</span>
                              )}
                            </button>
-                         ))}
+                           </span>
+                           );
+                         })}
                        </div>
                      ) : (
                        <p className="text-sm text-gray-400 italic">No color options available for this size</p>

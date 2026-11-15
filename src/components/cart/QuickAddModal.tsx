@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Loader2, Minus, Plus, ShoppingCart, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import { useAppDispatch } from "@/lib/hooks";
 import { addToCart, addToCartWithQuantity } from "@/lib/features/cart/cartSlice";
 import { trackAddToCart } from "@/lib/gtm";
 import { toast } from "react-toastify";
+import { getVariantLabel, isProductVariantAvailable, isVariantOptionAvailable } from "@/lib/product-variant-availability";
 
 interface QuickAddModalProps {
   product: {
@@ -38,7 +39,7 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedOption, setSelectedOption] = useState<ProductVariant["options"][number] | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const minimumOrderQuantity = Math.max(1, detail?.minimum_order_quantity ?? 1);
@@ -62,70 +63,38 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
 
   useEffect(() => {
     if (!detail) return;
-    const initialVariant = detail.variants?.find((variant) => (variant.stock ?? 0) > 0 || variant.allow_backorder)
+    const initialVariant = detail.variants?.find(isProductVariantAvailable)
       ?? detail.variants?.[0]
       ?? null;
     setSelectedVariant(initialVariant);
-    setSelectedColor(initialVariant?.attributes?.color ?? null);
-    setSelectedSize(initialVariant?.attributes?.size ?? null);
+    setSelectedSize(initialVariant ? getVariantLabel(initialVariant) : null);
+    setSelectedOption(initialVariant?.options?.find((option) => isVariantOptionAvailable(initialVariant, option))
+      ?? initialVariant?.options?.[0]
+      ?? null);
     setQuantity(Math.max(1, detail.minimum_order_quantity ?? 1));
   }, [detail]);
 
-  useEffect(() => {
-    if (!detail?.variants) return;
-    const match = detail.variants.find((v) =>
-      (selectedColor ? v.attributes?.color === selectedColor : true) &&
-      (selectedSize ? v.attributes?.size === selectedSize : true)
-    );
-    if (match) setSelectedVariant(match);
-    else if (!selectedColor && !selectedSize) setSelectedVariant(detail.variants[0] ?? null);
-    else setSelectedVariant(null);
-  }, [selectedColor, selectedSize, detail?.variants]);
-
-  const price = selectedVariant?.sale_price ?? detail?.price_range?.min ?? product.price ?? 0;
-  const comparePrice = selectedVariant?.compare_at_price ?? null;
+  const price = selectedOption?.discount_price ?? selectedOption?.sale_price ?? selectedVariant?.sale_price ?? detail?.price_range?.min ?? product.price ?? 0;
+  const comparePrice = selectedOption?.compare_at_price ?? selectedVariant?.compare_at_price ?? null;
   const inStock = selectedVariant
-    ? (selectedVariant.stock ?? 0) > 0 || selectedVariant.allow_backorder
+    ? isVariantOptionAvailable(selectedVariant, selectedOption)
     : !detail?.variants?.length;
-  const stockCount = selectedVariant?.stock ?? 0;
-  const imageUrl = selectedVariant?.image ?? detail?.main_image ?? product.main_image;
+  const stockCount = selectedOption?.stock ?? selectedVariant?.stock ?? 0;
+  const imageUrl = selectedOption?.image_url ?? selectedVariant?.image ?? detail?.main_image ?? product.main_image;
+  const showVariantSelector = Boolean(detail?.variants && (detail.variants.length > 1 || detail.variants.some((variant) => variant.attributes?.size)));
+  const selectedColor = selectedOption?.color_name ?? null;
   const canAddToCart = Boolean(
     detail && !loading && !error && inStock && (!detail.variants.length || selectedVariant)
   );
 
-  const attributeOptions = useMemo(() => {
-    if (!detail) {
-      return { colors: [], sizes: [], colorMap: {} as Record<string, string | undefined> };
-    }
-
-    if (detail.attribute_options) {
-      const colorMap: Record<string, string | undefined> = {};
-      const colors = detail.attribute_options.colors.map((c) => {
-        if (c.hex) colorMap[c.value] = c.hex.replace(/^#/, "");
-        return c.value;
-      });
-      const sizes = detail.attribute_options.sizes.map((s) => s.value);
-      return { colors, sizes, colorMap };
-    }
-
-    const colors = new Set<string>();
-    const sizes = new Set<string>();
-    const colorMap: Record<string, string | undefined> = {};
-
-    detail.variants?.forEach((v) => {
-      if (v.attributes?.color) {
-        colors.add(v.attributes.color);
-        if (v.attributes?.color_hex) {
-          colorMap[v.attributes.color] = v.attributes.color_hex.replace(/^#/, "");
-        }
-      }
-      if (v.attributes?.size) {
-        sizes.add(v.attributes.size);
-      }
-    });
-
-    return { colors: Array.from(colors), sizes: Array.from(sizes), colorMap };
-  }, [detail]);
+  const selectVariant = (variant: ProductVariant) => {
+    setSelectedVariant(variant);
+    setSelectedSize(getVariantLabel(variant));
+    setSelectedOption(variant.options?.find((option) => isVariantOptionAvailable(variant, option))
+      ?? variant.options?.[0]
+      ?? null);
+    setQuantity(minimumOrderQuantity);
+  };
 
   const handleAddToCart = () => {
     const item = {
@@ -136,9 +105,12 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
       price,
       variant_id: selectedVariant?.id,
       variant_name: selectedVariant?.name,
+      variant_option_id: selectedOption?.id,
       stock: stockCount,
       delivery_charge: detail?.delivery_charge,
       minimum_order_quantity: minimumOrderQuantity,
+      store_id: detail?.store_id,
+      store_name: detail?.store?.name,
     };
 
     if (quantity > 1) {
@@ -207,63 +179,53 @@ export default function QuickAddModal({ product, triggerLabel = "Add to Cart", d
 
           {detail?.variants && detail.variants.length > 0 ? (
             <div className="space-y-5">
-              {attributeOptions.colors.length > 0 ? (
+              {showVariantSelector ? (
                 <section>
-                  <p className="mb-3 text-sm text-gray-900">Color: <span className="font-medium">{selectedColor ?? "Select a color"}</span></p>
-                  <div className="flex flex-wrap gap-3">
-                    {attributeOptions.colors.map((color) => {
-                      const option = detail.attribute_options?.colors.find((item) => item.value === color);
-                      const available = option ? option.available : detail.variants.some((variant) => variant.attributes?.color === color && ((variant.stock ?? 0) > 0 || variant.allow_backorder));
-                      const hex = attributeOptions.colorMap[color];
-                      return (
-                        <button
-                          key={color}
-                          type="button"
-                          title={color}
-                          aria-label={`Color ${color}`}
-                          aria-pressed={selectedColor === color}
-                          onClick={() => { setSelectedColor(color); setQuantity(minimumOrderQuantity); }}
-                          disabled={!available}
-                          className={`h-9 w-9 rounded-full border border-gray-400 p-1 ${selectedColor === color ? "ring-1 ring-gray-900 ring-offset-2" : ""} ${!available ? "cursor-not-allowed opacity-35" : ""}`}
-                        >
-                          <span className="block h-full w-full rounded-full border border-black/10" style={{ backgroundColor: hex ? `#${hex}` : "#e5e7eb" }} />
-                        </button>
-                      );
-                    })}
-                  </div>
-                </section>
-              ) : null}
-
-              {attributeOptions.sizes.length > 0 ? (
-                <section>
-                  <p className="mb-3 text-sm text-gray-900">Size: <span className="font-medium">{selectedSize ?? "Select a size"}</span></p>
+                  <p className="mb-3 text-sm text-gray-900">Size / Variant: <span className="font-medium">{selectedSize ?? "Select an option"}</span></p>
                   <div className="flex flex-wrap gap-2">
-                    {attributeOptions.sizes.map((size) => {
-                      const option = detail.attribute_options?.sizes.find((item) => item.value === size);
-                      const available = option ? option.available && (!selectedColor || detail.variants.some((variant) => variant.attributes?.size === size && variant.attributes?.color === selectedColor && ((variant.stock ?? 0) > 0 || variant.allow_backorder))) : detail.variants.some((variant) => variant.attributes?.size === size && ((variant.stock ?? 0) > 0 || variant.allow_backorder) && (!selectedColor || variant.attributes?.color === selectedColor));
+                    {detail.variants.map((variant) => {
+                      const available = isProductVariantAvailable(variant);
+                      const label = getVariantLabel(variant);
                       return (
-                        <button
-                          key={size}
-                          type="button"
-                          aria-pressed={selectedSize === size}
-                          onClick={() => { setSelectedSize(size); setQuantity(minimumOrderQuantity); }}
-                          disabled={!available}
-                          className={`min-w-[44px] border px-3 py-2 text-sm transition-colors ${selectedSize === size ? "border-gray-900 bg-gray-900 text-white" : "border-gray-200 bg-white text-gray-900 hover:border-gray-500"} ${!available ? "cursor-not-allowed opacity-35" : ""}`}
-                        >{size}</button>
+                        <span key={variant.id} title={`${label}${available ? "" : " — Out of stock"}`} className="inline-flex">
+                          <button
+                            type="button"
+                            aria-label={`${label}${available ? "" : ", Out of stock"}`}
+                            aria-pressed={selectedVariant?.id === variant.id}
+                            onClick={() => selectVariant(variant)}
+                            disabled={!available}
+                            className={`min-w-[44px] border px-3 py-2 text-sm transition-colors ${selectedVariant?.id === variant.id ? "border-gray-900 bg-gray-900 text-white" : "border-gray-200 bg-white text-gray-900 hover:border-gray-500"} ${!available ? "cursor-not-allowed opacity-35" : ""}`}
+                          >{label}</button>
+                        </span>
                       );
                     })}
                   </div>
                 </section>
               ) : null}
 
-              {!detail.variants.some((variant) => variant.attributes?.color || variant.attributes?.size) ? (
-                <div className="flex flex-wrap gap-2">
-                  {detail.variants.map((variant) => (
-                    <button key={variant.id} type="button" onClick={() => setSelectedVariant(variant)} className={`border px-3 py-2 text-sm ${selectedVariant?.id === variant.id ? "border-gray-900 bg-gray-900 text-white" : "border-gray-200 text-gray-800"}`}>
-                      {variant.name}
-                    </button>
-                  ))}
-                </div>
+              {selectedVariant?.options?.length ? (
+                <section>
+                  <p className="mb-3 text-sm text-gray-900">Color{selectedSize ? ` for ${selectedSize}` : ""}: <span className="font-medium">{selectedColor ?? "Select a color"}</span></p>
+                  <div className="flex flex-wrap gap-3">
+                    {selectedVariant.options.map((option) => {
+                      const available = isVariantOptionAvailable(selectedVariant, option);
+                      return (
+                        <span key={option.id} title={`${option.color_name}${available ? "" : " — Out of stock"}`} className="inline-flex">
+                          <button
+                            type="button"
+                            aria-label={`Color ${option.color_name}${available ? "" : ", Out of stock"}`}
+                            aria-pressed={selectedOption?.id === option.id}
+                            onClick={() => { setSelectedOption(option); setQuantity(minimumOrderQuantity); }}
+                            disabled={!available}
+                            className={`h-9 w-9 rounded-full border border-gray-400 p-1 ${selectedOption?.id === option.id ? "ring-1 ring-gray-900 ring-offset-2" : ""} ${!available ? "cursor-not-allowed opacity-35" : ""}`}
+                          >
+                            <span className="block h-full w-full rounded-full border border-black/10" style={{ backgroundColor: option.color_code || "#e5e7eb" }} />
+                          </button>
+                        </span>
+                      );
+                    })}
+                  </div>
+                </section>
               ) : null}
             </div>
           ) : null}
