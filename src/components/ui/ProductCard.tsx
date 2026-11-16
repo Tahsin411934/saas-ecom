@@ -80,14 +80,14 @@ export default function ProductCard({ product, viewMode = "grid" }: ProductCardP
             className="flex shrink-0 items-center"
             onClick={handleProductClick}
           >
-            <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-lg overflow-hidden bg-gray-100">
+            <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-lg bg-white md:h-36 md:w-36">
               {product.main_image ? (
                 <Image
                   src={product.main_image}
                   alt={product.name}
                   fill
-                  sizes="128px"
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  sizes="(max-width: 767px) 112px, 144px"
+                  className="object-contain transition-transform duration-300 group-hover:scale-105"
 
                 />
               ) : (
@@ -148,12 +148,12 @@ export default function ProductCard({ product, viewMode = "grid" }: ProductCardP
   // Grid view (default)
   return (
     <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-gray-100 bg-white transition-shadow duration-200 hover:shadow-md">
-      <div className="relative aspect-square w-full overflow-hidden bg-gray-50">
+      <div className="relative aspect-[4/5] w-full overflow-hidden bg-white">
         <Link href={`/product/${product.slug}`} onClick={handleProductClick} aria-label={`View ${product.name}`} className="absolute inset-0 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-emerald-600">
           {product.main_image ? (
             <Image src={product.main_image} alt={product.name} fill
-              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 225px"
-              className="object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 240px"
+              className="object-contain transition-transform duration-300 group-hover:scale-105" loading="lazy" />
           ) : (
             <div className="flex h-full items-center justify-center text-gray-300" aria-hidden="true"><ShoppingCart className="h-10 w-10" /></div>
           )}
