@@ -16,6 +16,7 @@ export type ChatReply = {
     message: string;
     whatsapp_url: string;
     phone: string;
+    call_phone?: string;
   } | null;
 };
 
