@@ -445,7 +445,7 @@ export default function ProductDetailClient({
                         const isSelected = selectedVariant?.id === v.id;
                         const variantHasStock = isProductVariantAvailable(v);
                         return (
-                          <span key={v.id} title={`${variantLabel}${variantHasStock ? "" : " — Out of stock"}`}>
+                          <span key={v.id} title={variantHasStock ? undefined : "Size is not available"}>
                             <button
                               type="button"
                               onClick={() => {
@@ -457,13 +457,10 @@ export default function ProductDetailClient({
                                 setQuantity(minimumOrderQuantity);
                               }}
                               disabled={!variantHasStock}
-                              aria-label={`${variantLabel}${variantHasStock ? "" : ", Out of stock"}`}
+                              aria-label={`${variantLabel}${variantHasStock ? "" : ", Size is not available"}`}
                               className={`px-3 py-2 rounded-lg text-sm border ${isSelected ? 'ring-2 ring-[var(--color-primary)] border-[var(--color-primary)]' : 'border-gray-200'} ${!variantHasStock ? 'opacity-40 cursor-not-allowed' : ''}`}
                             >
                               {variantLabel}
-                              {variantHasStock && (
-                                <span className="ml-1 text-[11px] text-orange-500">Available</span>
-                              )}
                             </button>
                           </span>
                         );
